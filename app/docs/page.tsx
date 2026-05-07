@@ -1,193 +1,211 @@
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
+import { DocsSidebar } from "@/components/docs-sidebar";
+import { tools } from "./tools";
 
-type Tool = {
-  name: string;
-  tagline: string;
-  description: string;
-  params: { name: string; type: string; desc: string }[];
-  returns: string;
-};
-
-const tools: Tool[] = [
+const sidebarGroups = [
   {
-    name: "get_context",
-    tagline: "One-shot infra context",
-    description:
-      "Combined lookup. Returns existing resources, similar examples, matching modules, and conventions in a single call. Start here for any infrastructure task.",
-    params: [
-      { name: "intent", type: "string", desc: "What the agent is trying to do (free text)." },
-      { name: "resource_type", type: "string?", desc: "Optional Terraform type filter, e.g. aws_db_instance." },
+    title: "Getting started",
+    sections: [
+      { id: "overview", label: "Overview" },
+      { id: "quickstart", label: "Quick start" },
+      { id: "tool-flow", label: "Recommended flow" },
     ],
-    returns: "{ resources, examples, modules, conventions }",
   },
   {
-    name: "find_resource",
-    tagline: "Targeted search",
-    description:
-      "Search resources by name, type, tag, or attribute across all .tf and .tfstate files in the loaded graph.",
-    params: [
-      { name: "query", type: "string", desc: "Substring or attribute match." },
-      { name: "type", type: "string?", desc: "Restrict to a Terraform resource type." },
-    ],
-    returns: "Resource[] — type, name, address, attrs, source file:line",
-  },
-  {
-    name: "get_dependencies",
-    tagline: "Dependency graph",
-    description:
-      "Upstream + downstream dependency walk for a resource. Useful before destroy or modify operations.",
-    params: [
-      { name: "address", type: "string", desc: "Resource address, e.g. aws_db_instance.prod." },
-      { name: "depth", type: "number?", desc: "Hop limit (default 2)." },
-    ],
-    returns: "{ upstream: Edge[], downstream: Edge[] }",
-  },
-  {
-    name: "find_similar",
-    tagline: "Pattern lookup",
-    description:
-      "Find similar resources already in the codebase as HCL examples. Great for matching team conventions when authoring new resources.",
-    params: [
-      { name: "type", type: "string", desc: "Resource type." },
-      { name: "match", type: "object?", desc: "Attribute filters." },
-    ],
-    returns: "Example[] — full HCL block + source location",
-  },
-  {
-    name: "get_module_for",
-    tagline: "Reuse what exists",
-    description:
-      "Find reusable modules matching an intent. Returns the module path, inputs, and a usage snippet.",
-    params: [{ name: "intent", type: "string", desc: "What you're building." }],
-    returns: "Module[] — path, inputs, outputs, example call",
-  },
-  {
-    name: "get_conventions",
-    tagline: "How this codebase configures X",
-    description:
-      "Aggregates how a resource type is configured across the codebase — common args, recurring tags, modal values.",
-    params: [{ name: "type", type: "string", desc: "Resource type." }],
-    returns: "{ common_args, common_tags, modal_values }",
-  },
-  {
-    name: "simulate_impact",
-    tagline: "Plan before you apply",
-    description:
-      "Parse proposed HCL and return blast radius, broken references, similar real examples, reversibility context, and policy violations. Call this before presenting code.",
-    params: [
-      { name: "hcl", type: "string", desc: "Proposed Terraform code." },
-      { name: "operation", type: "enum", desc: "create | modify | destroy" },
-    ],
-    returns: "{ created, modified, destroyed, broken_refs, policy_violations, reversibility }",
-  },
-  {
-    name: "describe_live_state",
-    tagline: "AWS drift detection",
-    description:
-      "Compare Terraform state against live AWS via read-only Describe APIs. Surfaces drift between what is declared and what actually exists.",
-    params: [{ name: "address", type: "string", desc: "Resource address." }],
-    returns: "{ in_sync: boolean, diffs: AttrDiff[] }",
-  },
-  {
-    name: "load_repo",
-    tagline: "Swap the graph",
-    description:
-      "Clone a GitHub repo and reload the graph in place. No server restart. Useful for multi-repo agents or onboarding flows.",
-    params: [{ name: "url", type: "string", desc: "GitHub repository URL." }],
-    returns: "{ resources_loaded, modules_loaded, took_ms }",
-  },
-  {
-    name: "dump_graph",
-    tagline: "Full snapshot",
-    description:
-      "Returns a complete snapshot — all resources, edges, and policy violations. For debugging, audit, or building external visualizations.",
-    params: [],
-    returns: "{ nodes, edges, policy_violations }",
+    title: "Tools",
+    sections: tools.map((t) => ({ id: t.id, label: t.name })),
   },
 ];
 
 export default function DocsPage() {
   return (
-    <div className="relative">
-      <div className="absolute inset-x-0 top-0 h-[400px] grid-bg pointer-events-none opacity-60" />
-      <div className="relative mx-auto max-w-3xl px-6 py-8 sm:py-12">
-        <Nav />
+    <div className="mx-auto max-w-7xl px-6 py-8 sm:py-12">
+      <Nav />
 
-        <section className="mt-16">
-          <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-neutral-900">
-            Tool reference
-          </h1>
-          <p className="mt-4 text-neutral-600 max-w-xl">
-            Casper exposes 10 MCP tools. Each one is read-only and returns
-            structured JSON. Most agent flows start with{" "}
-            <code className="font-mono text-neutral-900">get_context</code>{" "}
-            and end with{" "}
-            <code className="font-mono text-neutral-900">simulate_impact</code>.
-          </p>
-        </section>
-
-        <aside className="mt-10 grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {tools.map((t) => (
-            <a
-              key={t.name}
-              href={`#${t.name}`}
-              className="rounded-md border border-neutral-200 bg-white px-3 py-2 font-mono text-xs text-neutral-700 hover:border-[var(--accent)] hover:text-neutral-900 transition"
-            >
-              {t.name}
-            </a>
-          ))}
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-12">
+        <aside className="lg:sticky lg:top-8 lg:self-start lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto pb-8">
+          <DocsSidebar groups={sidebarGroups} />
         </aside>
 
-        <div className="mt-16 space-y-16">
-          {tools.map((t) => (
-            <article key={t.name} id={t.name} className="scroll-mt-20">
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <h2 className="font-mono text-xl text-neutral-900">{t.name}</h2>
-                <span className="text-xs uppercase tracking-widest text-neutral-500">
-                  {t.tagline}
-                </span>
-              </div>
-              <p className="mt-3 text-sm text-neutral-600 leading-relaxed max-w-2xl">
-                {t.description}
-              </p>
+        <main className="min-w-0 max-w-3xl">
+          <article id="overview" className="scroll-mt-20">
+            <div className="text-xs uppercase tracking-widest text-neutral-500">
+              Documentation
+            </div>
+            <h1 className="mt-2 text-4xl sm:text-5xl font-semibold tracking-tight text-neutral-900">
+              Tool reference
+            </h1>
+            <p className="mt-4 text-neutral-600 leading-relaxed">
+              Casper exposes 10 MCP tools. Each one is read-only, returns
+              structured JSON, and operates on the in-memory graph built from
+              your Terraform repo at startup. The graph hot-reloads on every{" "}
+              <code className="font-mono text-neutral-900">.tf</code> /{" "}
+              <code className="font-mono text-neutral-900">.tfstate</code>{" "}
+              change via <code className="font-mono text-neutral-900">fsnotify</code>,
+              so the answers your agent gets are always up to date with the
+              current files on disk.
+            </p>
+          </article>
 
-              {t.params.length > 0 && (
-                <div className="mt-6">
-                  <div className="text-xs uppercase tracking-widest text-neutral-500 mb-2">
-                    Parameters
+          <article id="quickstart" className="mt-16 scroll-mt-20">
+            <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
+              Quick start
+            </h2>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              Point Casper at any Terraform directory. It scans, builds the
+              graph, watches for changes, and exposes 10 tools over stdio.
+            </p>
+            <div className="mt-5 rounded-lg border border-neutral-200 bg-neutral-950 px-4 py-3 font-mono text-sm text-neutral-200 overflow-x-auto">
+              <span className="text-neutral-500">$ </span>
+              npx casper-mcp serve --dir /path/to/your/terraform
+            </div>
+            <p className="mt-4 text-neutral-600 leading-relaxed">
+              Or run <code className="font-mono text-neutral-900">casper-mcp init</code>{" "}
+              once in your repo to wire up{" "}
+              <code className="font-mono text-neutral-900">.mcp.json</code> and a{" "}
+              <code className="font-mono text-neutral-900">/casper</code> slash
+              command for Claude Code.
+            </p>
+          </article>
+
+          <article id="tool-flow" className="mt-16 scroll-mt-20">
+            <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
+              Recommended flow
+            </h2>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              Most agent workflows should follow the same shape:
+            </p>
+            <ol className="mt-5 space-y-3">
+              {[
+                ["get_context", "Ground the agent in existing resources, examples, modules, and conventions."],
+                ["draft HCL", "Author Terraform that mirrors what the codebase already does."],
+                ["simulate_impact", "Verify blast radius, broken refs, and policy violations before presenting code."],
+                ["describe_live_state", "If touching existing infra, confirm declared state matches reality."],
+              ].map(([step, desc], i) => (
+                <li
+                  key={step}
+                  className="flex gap-4 rounded-lg border border-neutral-200 bg-white px-4 py-3"
+                >
+                  <span className="font-mono text-xs text-neutral-500 mt-0.5">
+                    0{i + 1}
+                  </span>
+                  <div>
+                    <code className="font-mono text-sm text-neutral-900">
+                      {step}
+                    </code>
+                    <p className="mt-1 text-sm text-neutral-600">{desc}</p>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 overflow-hidden bg-white">
-                    {t.params.map((p, i) => (
-                      <div
-                        key={p.name}
-                        className={`grid grid-cols-[140px_100px_1fr] gap-4 px-4 py-3 text-sm ${
-                          i > 0 ? "border-t border-neutral-200" : ""
-                        }`}
-                      >
-                        <code className="font-mono text-neutral-900">{p.name}</code>
-                        <code className="font-mono text-neutral-600">{p.type}</code>
-                        <span className="text-neutral-600">{p.desc}</span>
+                </li>
+              ))}
+            </ol>
+          </article>
+
+          <div className="mt-20 mb-6">
+            <div className="text-xs uppercase tracking-widest text-neutral-500">
+              Tools
+            </div>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900">
+              All 10 tools, in detail
+            </h2>
+          </div>
+
+          <div className="space-y-20">
+            {tools.map((t) => (
+              <article
+                key={t.id}
+                id={t.id}
+                className="scroll-mt-20 border-t border-neutral-200 pt-10"
+              >
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <h3 className="font-mono text-2xl text-neutral-900">{t.name}</h3>
+                  <span className="text-xs uppercase tracking-widest text-neutral-500">
+                    {t.tagline}
+                  </span>
+                </div>
+                <p className="mt-4 text-neutral-700 leading-relaxed">
+                  {t.description}
+                </p>
+
+                <div className="mt-5 rounded-lg border-l-2 border-[var(--accent)] bg-neutral-50 px-4 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">
+                    When to use
+                  </div>
+                  <p className="text-sm text-neutral-700 leading-relaxed">
+                    {t.whenToUse}
+                  </p>
+                </div>
+
+                {t.params.length > 0 && (
+                  <div className="mt-8">
+                    <h4 className="text-sm font-semibold text-neutral-900 mb-3">
+                      Parameters
+                    </h4>
+                    <div className="rounded-lg border border-neutral-200 overflow-hidden bg-white">
+                      <div className="grid grid-cols-[160px_120px_60px_1fr] gap-4 px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500 border-b border-neutral-200 bg-neutral-50">
+                        <span>Name</span>
+                        <span>Type</span>
+                        <span>Req.</span>
+                        <span>Description</span>
                       </div>
-                    ))}
+                      {t.params.map((p, i) => (
+                        <div
+                          key={p.name}
+                          className={`grid grid-cols-[160px_120px_60px_1fr] gap-4 px-4 py-3 text-sm ${
+                            i > 0 ? "border-t border-neutral-200" : ""
+                          }`}
+                        >
+                          <code className="font-mono text-neutral-900">{p.name}</code>
+                          <code className="font-mono text-neutral-600">{p.type}</code>
+                          <span
+                            className={
+                              p.required
+                                ? "text-[var(--accent)] font-medium"
+                                : "text-neutral-400"
+                            }
+                          >
+                            {p.required ? "yes" : "no"}
+                          </span>
+                          <span className="text-neutral-600">{p.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-8">
+                  <h4 className="text-sm font-semibold text-neutral-900 mb-3">
+                    Returns
+                  </h4>
+                  <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-sm text-neutral-800 overflow-x-auto">
+                    {t.returns}
                   </div>
                 </div>
-              )}
 
-              <div className="mt-6">
-                <div className="text-xs uppercase tracking-widest text-neutral-500 mb-2">
-                  Returns
+                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CodePane label="Example call" code={t.exampleCall} />
+                  <CodePane label="Example response" code={t.exampleResponse} />
                 </div>
-                <div className="rounded-md border border-neutral-200 bg-neutral-50 px-4 py-3 font-mono text-sm text-neutral-800 overflow-x-auto">
-                  {t.returns}
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
 
-        <Footer />
+          <Footer />
+        </main>
       </div>
+    </div>
+  );
+}
+
+function CodePane({ label, code }: { label: string; code: string }) {
+  return (
+    <div className="rounded-lg border border-neutral-200 bg-neutral-950 overflow-hidden">
+      <div className="px-4 py-2 border-b border-neutral-800 text-xs font-mono text-neutral-400">
+        {label}
+      </div>
+      <pre className="p-4 text-xs font-mono text-neutral-200 overflow-x-auto leading-relaxed">
+        <code>{code}</code>
+      </pre>
     </div>
   );
 }

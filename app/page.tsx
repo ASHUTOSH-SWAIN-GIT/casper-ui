@@ -61,9 +61,6 @@ const features = [
 export default function Page() {
   return (
     <div className="relative">
-      <div className="absolute inset-x-0 top-0 h-[700px] grid-bg pointer-events-none" />
-      <div className="absolute inset-x-0 top-0 h-[700px] glow pointer-events-none" />
-
       <div className="relative mx-auto max-w-6xl px-6 py-8 sm:py-12">
         <Nav />
 
