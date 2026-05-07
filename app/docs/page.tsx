@@ -9,7 +9,7 @@ const sidebarGroups = [
     sections: [
       { id: "overview", label: "Overview" },
       { id: "quickstart", label: "Quick start" },
-      { id: "tool-flow", label: "Recommended flow" },
+      { id: "context-graph", label: "Context graph" },
     ],
   },
   {
@@ -53,52 +53,137 @@ export default function DocsPage() {
               Quick start
             </h2>
             <p className="mt-3 text-neutral-600 leading-relaxed">
-              Point Casper at any Terraform directory. It scans, builds the
-              graph, watches for changes, and exposes 10 tools over stdio.
+              Three steps. Install, init in your Terraform repo, then run{" "}
+              <code className="font-mono text-neutral-900">/casper</code> in
+              Claude Code to build the graph.
             </p>
-            <div className="mt-5 rounded-lg border border-neutral-200 bg-neutral-950 px-4 py-3 font-mono text-sm text-neutral-200 overflow-x-auto">
-              <span className="text-neutral-500">$ </span>
-              npx casper-mcp serve --dir /path/to/your/terraform
-            </div>
-            <p className="mt-4 text-neutral-600 leading-relaxed">
-              Or run <code className="font-mono text-neutral-900">casper-mcp init</code>{" "}
-              once in your repo to wire up{" "}
-              <code className="font-mono text-neutral-900">.mcp.json</code> and a{" "}
-              <code className="font-mono text-neutral-900">/casper</code> slash
-              command for Claude Code.
-            </p>
+
+            <ol className="mt-6 space-y-4">
+              <QuickStep
+                index={1}
+                title="Install"
+                desc="Install the Casper MCP CLI."
+                code="npm install -g casper-mcp"
+              />
+              <QuickStep
+                index={2}
+                title="Init in your repo"
+                desc="Wires up .mcp.json and the /casper slash command."
+                code="casper-mcp init"
+              />
+              <QuickStep
+                index={3}
+                title="Start the graph"
+                desc="Open Claude Code in the same project and run:"
+                code="/casper"
+              />
+            </ol>
           </article>
 
-          <article id="tool-flow" className="mt-16 scroll-mt-20">
+          <article id="context-graph" className="mt-16 scroll-mt-20">
             <h2 className="text-2xl font-semibold tracking-tight text-neutral-900">
-              Recommended flow
+              Context graph
             </h2>
             <p className="mt-3 text-neutral-600 leading-relaxed">
-              Most agent workflows should follow the same shape:
+              Everything Casper exposes — every tool, every answer — is backed
+              by a single in-memory data structure called the{" "}
+              <span className="text-neutral-900 font-medium">context graph</span>.
+              It&rsquo;s a typed view of your Terraform infrastructure that
+              the agent queries instead of reading raw files.
+            </p>
+
+            <h3 className="mt-10 text-lg font-semibold text-neutral-900">
+              What it is
+            </h3>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              The graph is a directed, attributed graph held in memory by the
+              MCP server for the duration of the session. Every Terraform
+              concept becomes a typed entity:
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-neutral-700">
+              {[
+                ["Nodes", "Resources, data sources, module calls, and module definitions. Each carries its full attribute set, tags, and source file:line."],
+                ["Edges", "References, depends_on relationships, and module input/output wiring. Edges are typed and traversable in both directions."],
+                ["Conventions", "An aggregated view of how resource types are configured across the repo — common args, modal values, recurring tag keys."],
+                ["Policies", "Rules from .casper/policies.yaml evaluated against the graph; violations attach to affected resources."],
+              ].map(([k, v]) => (
+                <li key={k} className="flex gap-3">
+                  <span className="mt-2 size-1.5 rounded-full bg-[var(--accent)] shrink-0" />
+                  <span>
+                    <span className="font-medium text-neutral-900">{k}.</span>{" "}
+                    {v}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <h3 className="mt-10 text-lg font-semibold text-neutral-900">
+              How it&rsquo;s made
+            </h3>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              On startup Casper runs a four-stage pipeline against the
+              directory you point it at:
             </p>
             <ol className="mt-5 space-y-3">
               {[
-                ["get_context", "Ground the agent in existing resources, examples, modules, and conventions."],
-                ["draft HCL", "Author Terraform that mirrors what the codebase already does."],
-                ["simulate_impact", "Verify blast radius, broken refs, and policy violations before presenting code."],
-                ["describe_live_state", "If touching existing infra, confirm declared state matches reality."],
+                ["Scan", "Walk the tree, collect every .tf and .tfstate file (skipping vendored modules and .terraform caches)."],
+                ["Parse", "Use HashiCorp's HCL parser to extract resource blocks, attributes, references, and module calls into typed records."],
+                ["Link", "Resolve cross-file references and depends_on into directed edges. Module calls are wired to their definitions."],
+                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 10 MCP tools."],
               ].map(([step, desc], i) => (
                 <li
                   key={step}
                   className="flex gap-4 rounded-lg border border-neutral-200 bg-white px-4 py-3"
                 >
-                  <span className="font-mono text-xs text-neutral-500 mt-0.5">
+                  <span className="font-mono text-xs text-[var(--accent)] mt-0.5 w-6">
                     0{i + 1}
                   </span>
                   <div>
-                    <code className="font-mono text-sm text-neutral-900">
+                    <span className="text-sm font-medium text-neutral-900">
                       {step}
-                    </code>
+                    </span>
                     <p className="mt-1 text-sm text-neutral-600">{desc}</p>
                   </div>
                 </li>
               ))}
             </ol>
+
+            <div className="mt-6 rounded-lg border-l-2 border-[var(--accent)] bg-neutral-50 px-4 py-3">
+              <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">
+                Stays in sync
+              </div>
+              <p className="text-sm text-neutral-700 leading-relaxed">
+                An{" "}
+                <code className="font-mono text-neutral-900">fsnotify</code>{" "}
+                watcher runs alongside the server. Any save, edit, or delete
+                of a <code className="font-mono text-neutral-900">.tf</code>{" "}
+                or <code className="font-mono text-neutral-900">.tfstate</code>{" "}
+                file triggers a debounced rescan and atomic graph swap. The
+                next tool call always sees the current state of your repo —
+                no restart, no manual reload.
+              </p>
+            </div>
+
+            <h3 className="mt-10 text-lg font-semibold text-neutral-900">
+              Why a graph
+            </h3>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              Agents that read raw <code className="font-mono text-neutral-900">.tf</code>{" "}
+              files hit three walls almost immediately. Files don&rsquo;t fit
+              into context on real-world repos. Cross-module references
+              require following <code className="font-mono text-neutral-900">module.foo.bar</code>{" "}
+              indirection that&rsquo;s easy to miss. And questions like
+              &quot;what depends on this RDS instance?&quot; force a full
+              repo grep with no guarantee of completeness.
+            </p>
+            <p className="mt-3 text-neutral-600 leading-relaxed">
+              The graph turns those problems into typed lookups. Token cost
+              stays flat regardless of repo size, every reference is resolved
+              once at parse time, and dependency walks are O(1) per hop.
+              Equally important, the graph is the surface that policies,
+              drift detection, and impact simulation can be evaluated
+              against — none of which is possible by reading files alone.
+            </p>
           </article>
 
           <div className="mt-20 mb-6">
@@ -129,10 +214,10 @@ export default function DocsPage() {
 
                 <div className="mt-5 rounded-lg border-l-2 border-[var(--accent)] bg-neutral-50 px-4 py-3">
                   <div className="text-xs font-semibold uppercase tracking-wide text-neutral-500 mb-1">
-                    When to use
+                    Why it exists
                   </div>
                   <p className="text-sm text-neutral-700 leading-relaxed">
-                    {t.whenToUse}
+                    {t.whyItExists}
                   </p>
                 </div>
 
@@ -194,6 +279,34 @@ export default function DocsPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+function QuickStep({
+  index,
+  title,
+  desc,
+  code,
+}: {
+  index: number;
+  title: string;
+  desc: string;
+  code: string;
+}) {
+  return (
+    <li className="rounded-lg border border-neutral-200 bg-white p-5">
+      <div className="flex items-center gap-3">
+        <span className="inline-flex size-7 items-center justify-center rounded-md border border-[var(--accent)]/40 bg-[var(--accent)]/10 font-mono text-xs text-[var(--accent)]">
+          0{index}
+        </span>
+        <h3 className="text-base font-medium text-neutral-900">{title}</h3>
+      </div>
+      <p className="mt-2 ml-10 text-sm text-neutral-600">{desc}</p>
+      <div className="mt-3 ml-10 rounded-md border border-neutral-200 bg-neutral-950 px-4 py-2.5 font-mono text-sm text-neutral-200 overflow-x-auto">
+        <span className="text-neutral-500">$ </span>
+        {code}
+      </div>
+    </li>
   );
 }
 
