@@ -5,13 +5,13 @@
 :root {
   --bg: #ffffff;
   --fg: #0a0a0a;
-  --muted: #525252;
-  --border: #e5e5e5;
-  --surface: #fafafa;
-  --surface-2: #f5f5f5;
-  --accent: #ff8a3d;
-  --accent-soft: #ffb784;
-  --accent-glow: rgba(255, 138, 61, 0.18);
+  --muted: rgba(10, 10, 10, 0.66);
+  --border: #dedede;
+  --surface: #ffffff;
+  --surface-2: #f7f7f7;
+  --accent: #0f766e;
+  --accent-soft: #ccfbf1;
+  --accent-glow: rgba(15, 118, 110, 0.14);
 }
 
 html, body {
@@ -26,16 +26,16 @@ html, body {
 }
 
 ::selection {
-  background: var(--accent);
-  color: #ffffff;
+  background: var(--accent-soft);
+  color: var(--fg);
 }
 
 .grid-bg {
   background-image:
-    linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 80%);
+    linear-gradient(to right, rgba(10,10,10,0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(10,10,10,0.055) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(to bottom, black, transparent 92%);
 }
 
 .glow {
@@ -58,4 +58,52 @@ html, body {
 
 @keyframes dashmove {
   to { stroke-dashoffset: -20; }
+}
+
+.animate-fadeUp {
+  animation: fadeUp 0.4s ease-out both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeUp-delay {
+  animation: fadeUp 0.5s 0.08s ease-out both;
+}
+
+.reveal-line {
+  transform-origin: left;
+  animation: lineReveal 0.8s ease-out both;
+}
+
+@keyframes lineReveal {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.group-hover\:animate-ping-slow {
+  /* helper class actually defined as keyframe below */
+}
+
+@keyframes pingSlow {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.group:hover .group-hover\:animate-ping-slow {
+  animation: pingSlow 1.4s ease-out infinite;
 }

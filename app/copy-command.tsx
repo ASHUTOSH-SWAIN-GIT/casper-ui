@@ -12,10 +12,10 @@ export function CopyCommand({ command }: { command: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1200);
       }}
-      className="group inline-flex h-10 items-center gap-3 rounded-md bg-[var(--accent)] px-4 text-sm font-medium text-white hover:bg-[var(--accent-soft)] transition shadow-sm"
+      className="group inline-flex min-h-11 items-center gap-3 rounded-md border border-black bg-white px-4 text-sm font-medium text-black transition hover:bg-[var(--surface-2)]"
     >
       <span className="font-mono">$ {command}</span>
-      <span className="text-white/70 group-hover:text-white/90">
+      <span className="text-black/55 group-hover:text-black">
         {copied ? "copied" : "copy"}
       </span>
     </button>

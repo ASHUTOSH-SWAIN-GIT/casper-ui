@@ -8,13 +8,13 @@ export function GraphSvg() {
     >
       <defs>
         <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#ff8a3d" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#ff8a3d" stopOpacity="0" />
+          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="edge" x1="0" x2="1" y1="0" y2="0">
-          <stop offset="0%" stopColor="#ff8a3d" stopOpacity="0.1" />
-          <stop offset="50%" stopColor="#ff8a3d" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#ff8a3d" stopOpacity="0.1" />
+          <stop offset="0%" stopColor="#6366f1" stopOpacity="0.1" />
+          <stop offset="50%" stopColor="#6366f1" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#6366f1" stopOpacity="0.1" />
         </linearGradient>
       </defs>
 
@@ -27,7 +27,7 @@ export function GraphSvg() {
         <line x1="480" y1="80" x2="480" y2="240" />
       </g>
 
-      <g stroke="#ff8a3d" strokeWidth="1.5" fill="none" className="dash-flow" opacity="0.7">
+      <g stroke="#6366f1" strokeWidth="1.5" fill="none" className="dash-flow" opacity="0.7">
         <line x1="300" y1="160" x2="480" y2="80" />
         <line x1="120" y1="240" x2="300" y2="160" />
       </g>
@@ -46,10 +46,10 @@ export function GraphSvg() {
             cy={n.y}
             r="10"
             fill="#000"
-            stroke="#ff8a3d"
+            stroke="#6366f1"
             strokeWidth="1.5"
           />
-          <circle cx={n.x} cy={n.y} r="3" fill="#ff8a3d" />
+          <circle cx={n.x} cy={n.y} r="3" fill="#6366f1" />
           <text
             x={n.x}
             y={n.y + 30}

@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Casper MCP — Live Terraform context for AI agents",
+  title: "Casper MCP - Live Terraform context for AI agents",
   description:
     "An MCP server that gives AI agents a live, queryable view of your Terraform infrastructure. Find resources, simulate changes, detect drift, enforce policies.",
 };

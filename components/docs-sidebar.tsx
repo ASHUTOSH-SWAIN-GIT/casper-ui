@@ -29,10 +29,10 @@ export function DocsSidebar({ groups }: { groups: Group[] }) {
   }, [groups]);
 
   return (
-    <nav className="space-y-8 text-sm">
+    <nav className="space-y-8 border-t border-black/10 pt-5 text-sm lg:border-t-0 lg:pt-0">
       {groups.map((group) => (
         <div key={group.title}>
-          <div className="text-xs font-semibold uppercase tracking-widest text-neutral-500 mb-3">
+          <div className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-black/55">
             {group.title}
           </div>
           <ul className="space-y-1">
@@ -42,10 +42,10 @@ export function DocsSidebar({ groups }: { groups: Group[] }) {
                 <li key={s.id}>
                   <a
                     href={`#${s.id}`}
-                    className={`block rounded-md px-3 py-1.5 transition border-l-2 ${
+                    className={`block border-l-2 px-3 py-1.5 transition ${
                       isActive
-                        ? "border-[var(--accent)] bg-neutral-50 text-neutral-900 font-medium"
-                        : "border-transparent text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50"
+                        ? "border-[var(--accent)] bg-[var(--surface-2)] font-medium text-black"
+                        : "border-transparent text-black/62 hover:bg-[var(--surface-2)] hover:text-black"
                     }`}
                   >
                     <span className={isActive ? "" : "font-mono text-[13px]"}>
