@@ -207,26 +207,6 @@ export const tools: Tool[] = [
 }`,
   },
   {
-    id: "load_repo",
-    name: "load_repo",
-    tagline: "Swap the graph",
-    description:
-      "Clones a GitHub repository into a temp directory, runs the full ingest pipeline, and atomically replaces the live graph. The next tool call operates on the new repo with no server restart.",
-    whyItExists:
-      "Multi-repo orgs and onboarding flows need to inspect arbitrary infra without spinning up a new MCP server per repo. Making the graph swappable from inside the session keeps the agent running and lets it compare repos in a single context.",
-    params: [
-      { name: "url", type: "string", required: true, desc: "GitHub repository URL (https or ssh)." },
-      { name: "token", type: "string", required: false, desc: "Optional GitHub PAT for private repos." },
-    ],
-    returns: "{ resources_loaded: number, dependencies_loaded: number, took_ms: number }",
-    exampleCall: `load_repo({ url: "https://github.com/acme/infra" })`,
-    exampleResponse: `{
-  "resources_loaded": 312,
-  "dependencies_loaded": 487,
-  "took_ms": 1840
-}`,
-  },
-  {
     id: "dump_graph",
     name: "dump_graph",
     tagline: "Full snapshot",

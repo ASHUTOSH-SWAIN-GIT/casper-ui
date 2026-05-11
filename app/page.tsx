@@ -51,7 +51,6 @@ const features = [
   { Icon: BoltIcon, title: "Simulate changes", body: "Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply." },
   { Icon: CloudIcon, title: "Detect drift", body: "Compare Terraform state vs live AWS via read-only Describe APIs." },
   { Icon: ShieldIcon, title: "Enforce policies", body: "Define org rules in .casper/policies.yaml. Violations surface inline." },
-  { Icon: LayersIcon, title: "Load any repo", body: "Point at a GitHub URL and swap the graph on the fly. No restart." },
   { Icon: GraphIcon, title: "Read-only by design", body: "Casper never writes to AWS or your repo. It reads, indexes, answers." },
 ];
 

@@ -20,10 +20,6 @@ const items = [
     a: "describe_live_state walks the resource address, calls the matching read-only AWS Describe endpoint, and diffs the live attributes against your Terraform state. You see what's declared vs. what actually exists.",
   },
   {
-    q: "Can I point it at multiple repos?",
-    a: "Yes. Call load_repo with a GitHub URL during a session and Casper swaps the graph in place. No restart, no config edit.",
-  },
-  {
     q: "What clouds does it support?",
     a: "Live drift is AWS-only today. Static analysis for find, simulate, and policies is provider-agnostic. It works on any HCL.",
   },
