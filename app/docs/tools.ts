@@ -5,6 +5,13 @@ export type Param = {
   desc: string;
 };
 
+export type Requirement = {
+  title: string;
+  body: string;
+  code?: string;
+  codeLabel?: string;
+};
+
 export type Tool = {
   id: string;
   name: string;
@@ -15,6 +22,7 @@ export type Tool = {
   returns: string;
   exampleCall: string;
   exampleResponse: string;
+  requirements?: Requirement[];
 };
 
 export const tools: Tool[] = [
@@ -205,6 +213,41 @@ export const tools: Tool[] = [
     { "attr": "backup_retention_period", "terraform": 7, "live": 14 }
   ]
 }`,
+    requirements: [
+      {
+        title: "AWS credentials required",
+        body: "This is the only tool that talks to AWS. Casper uses the standard AWS SDK credential chain, so any method the AWS CLI accepts will work. Credentials must have read-only Describe permissions for the resource types you query (e.g. rds:DescribeDBInstances, ec2:DescribeInstances, s3:GetBucket*). A managed policy like ReadOnlyAccess covers everything.",
+      },
+      {
+        title: "Option 1 — environment variables",
+        body: "Export these in the shell that launches your MCP client (Claude Code, Cursor, etc.). Casper inherits the environment.",
+        codeLabel: "shell",
+        code: `export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=us-east-1
+# optional, if using temporary creds:
+export AWS_SESSION_TOKEN=...`,
+      },
+      {
+        title: "Option 2 — shared profile (~/.aws/credentials)",
+        body: "Configure a named profile once, then point Casper at it via AWS_PROFILE. Best if you already use the AWS CLI.",
+        codeLabel: "~/.aws/credentials",
+        code: `[casper]
+aws_access_key_id = AKIA...
+aws_secret_access_key = ...
+region = us-east-1
+
+# then, in the shell that launches your MCP client:
+export AWS_PROFILE=casper`,
+      },
+      {
+        title: "Option 3 — SSO / assume-role",
+        body: "For orgs on IAM Identity Center, run aws sso login first; Casper picks up the cached credentials. For cross-account access, configure a profile with role_arn + source_profile and set AWS_PROFILE — the SDK handles the AssumeRole call.",
+        codeLabel: "shell",
+        code: `aws sso login --profile casper
+export AWS_PROFILE=casper`,
+      },
+    ],
   },
   {
     id: "dump_graph",

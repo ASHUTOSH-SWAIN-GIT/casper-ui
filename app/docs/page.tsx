@@ -47,7 +47,7 @@ export default function DocsPage() {
               Tool reference
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-black/70">
-              Casper exposes 10 MCP tools. Each one is read-only, returns
+              Casper exposes 9 MCP tools. Each one is read-only, returns
               structured JSON, and operates on the in-memory graph built from
               your Terraform repo at startup. The graph hot-reloads on every{" "}
               <code className="font-mono text-black">.tf</code> /{" "}
@@ -135,7 +135,7 @@ export default function DocsPage() {
                 ["Scan", "Walk the tree, collect every .tf and .tfstate file (skipping vendored modules and .terraform caches)."],
                 ["Parse", "Use HashiCorp's HCL parser to extract resource blocks, attributes, references, and module calls into typed records."],
                 ["Link", "Resolve cross-file references and depends_on into directed edges. Module calls are wired to their definitions."],
-                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 10 MCP tools."],
+                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 9 MCP tools."],
               ].map(([step, desc], i) => (
                 <li
                   key={step}
@@ -434,7 +434,7 @@ export default function DocsPage() {
               Tools
             </div>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight text-black">
-              All 10 tools, in detail
+              All 9 tools, in detail
             </h2>
           </div>
 
@@ -516,6 +516,43 @@ export default function DocsPage() {
                   <CodePane label="Example call" code={t.exampleCall} />
                   <CodePane label="Example response" code={t.exampleResponse} />
                 </div>
+
+                {t.requirements && t.requirements.length > 0 && (
+                  <div className="mt-10">
+                    <h4 className="mb-4 text-sm font-semibold text-black">
+                      Requirements
+                    </h4>
+                    <div className="space-y-4">
+                      {t.requirements.map((r) => (
+                        <div
+                          key={r.title}
+                          className="border border-black/10 bg-white"
+                        >
+                          <div className="border-b border-black/10 bg-[var(--surface-2)] px-4 py-2.5 text-sm font-semibold text-black">
+                            {r.title}
+                          </div>
+                          <div className="px-4 py-3">
+                            <p className="max-w-3xl text-sm leading-6 text-black/70">
+                              {r.body}
+                            </p>
+                            {r.code && (
+                              <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+                                {r.codeLabel && (
+                                  <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                                    {r.codeLabel}
+                                  </div>
+                                )}
+                                <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                                  <code>{r.code}</code>
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </article>
             ))}
           </div>

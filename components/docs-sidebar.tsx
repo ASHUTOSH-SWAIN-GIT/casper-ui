@@ -42,6 +42,7 @@ export function DocsSidebar({ groups }: { groups: Group[] }) {
                 <li key={s.id}>
                   <a
                     href={`#${s.id}`}
+                    onClick={() => setActive(s.id)}
                     className={`block border-l-2 px-3 py-1.5 transition ${
                       isActive
                         ? "border-[var(--accent)] bg-[var(--surface-2)] font-medium text-black"
