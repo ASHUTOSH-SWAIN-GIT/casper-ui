@@ -57,9 +57,12 @@ export default function DocsPage() {
               Tool reference
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-black/70">
-              Casper exposes 11 MCP tools. Each one is read-only, returns
-              structured JSON, and operates on the in-memory graph built from
-              your Terraform repo at startup. The graph hot-reloads on every{" "}
+              Casper exposes typed MCP tools that return structured JSON
+              against the in-memory graph built from your Terraform repo at
+              startup. Casper never writes Terraform or AWS resources;{" "}
+              <code className="font-mono text-black">render_graph</code> is
+              the one tool that touches disk, and only to write a local HTML
+              graph. The graph hot-reloads on every{" "}
               <code className="font-mono text-black">.tf</code> /{" "}
               <code className="font-mono text-black">.tfstate</code>{" "}
               change via <code className="font-mono text-black">fsnotify</code>,
@@ -118,7 +121,7 @@ export default function DocsPage() {
             </p>
             <ul className="mt-5 max-w-3xl space-y-3 text-sm leading-6 text-black/70">
               {[
-                ["Nodes", "Resources, data sources, module calls, and module definitions. Each carries its full attribute set, tags, and source file:line."],
+                ["Nodes", "Resources, data sources, module calls, and module definitions. Each carries its full attribute set, tags, and source path."],
                 ["Edges", "References, depends_on relationships, and module input/output wiring. Edges are typed and traversable in both directions."],
                 ["Conventions", "An aggregated view of how resource types are configured across the repo: common args, modal values, recurring tag keys."],
                 ["Policies", "Rules from .rego files (preferred) or .casper/policies.yaml evaluated against the graph; violations attach to affected resources."],
@@ -145,7 +148,7 @@ export default function DocsPage() {
                 ["Scan", "Walk the tree, collect every .tf and .tfstate file (skipping vendored modules and .terraform caches)."],
                 ["Parse", "Use HashiCorp's HCL parser to extract resource blocks, attributes, references, and module calls into typed records."],
                 ["Link", "Resolve cross-file references and depends_on into directed edges. Module calls are wired to their definitions."],
-                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 11 MCP tools."],
+                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power every MCP tool."],
               ].map(([step, desc], i) => (
                 <li
                   key={step}
@@ -852,6 +855,17 @@ export AWS_SESSION_TOKEN=...`}</code>
                   each backend block&rsquo;s declared region.
                 </span>
               </div>
+              <div className="grid grid-cols-[180px_100px_1fr] gap-4 border-t border-black/10 px-4 py-3 text-sm">
+                <code className="font-mono text-black">cloud.aws.role_arn</code>
+                <span className="text-black/40">no</span>
+                <span className="text-black/70">
+                  Optional role to assume before every AWS call. Casper uses
+                  your env-provided credentials as the base identity, then
+                  calls <code className="font-mono text-black">sts:AssumeRole</code>{" "}
+                  to switch into this role. Useful for cross-account or
+                  least-privilege patterns.
+                </span>
+              </div>
             </div>
 
             <h4 className="mt-8 text-sm font-semibold text-black">
@@ -883,7 +897,7 @@ export AWS_SESSION_TOKEN=...`}</code>
               Tools
             </div>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight text-black">
-              All 11 tools, in detail
+              All tools, in detail
             </h2>
           </div>
 

@@ -51,7 +51,7 @@ const features = [
   { Icon: BoltIcon, title: "Simulate changes", body: "Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply." },
   { Icon: CloudIcon, title: "Detect drift", body: "Compare Terraform state vs live AWS via read-only Describe APIs." },
   { Icon: ShieldIcon, title: "Enforce policies", body: "Define org rules in .casper/policies.yaml. Violations surface inline." },
-  { Icon: GraphIcon, title: "Read-only by design", body: "Casper never writes to AWS or your repo. It reads, indexes, answers." },
+  { Icon: GraphIcon, title: "Read-only by design", body: "Casper never writes Terraform or AWS resources. render_graph writes one local HTML file; that's the only thing on disk." },
 ];
 
 export default function Page() {
@@ -87,7 +87,7 @@ export default function Page() {
 
             <div className="mt-12 grid max-w-xl grid-cols-3 border-y border-black/10 py-5">
               {[
-                ["10", "typed tools"],
+                ["MCP", "typed tools"],
                 ["0", "write actions"],
                 ["1", "live graph"],
               ].map(([value, label]) => (

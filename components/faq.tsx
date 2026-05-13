@@ -5,15 +5,11 @@ import { useState } from "react";
 const items = [
   {
     q: "What is MCP?",
-    a: "Model Context Protocol is an open standard for connecting AI assistants to external systems. Instead of feeding your agent raw files, an MCP server exposes typed tools. Casper exposes 10 of them for querying Terraform infrastructure.",
+    a: "Model Context Protocol is an open standard for connecting AI assistants to external systems. Instead of feeding your agent raw files, an MCP server exposes typed tools. Casper exposes a focused set of them for querying Terraform infrastructure — see the docs for the full list.",
   },
   {
     q: "Does Casper modify my Terraform or AWS?",
-    a: "No. Casper is read-only. It indexes .tf and .tfstate files, calls AWS Describe APIs, and returns structured answers. It never writes to your repo or your cloud.",
-  },
-  {
-    q: "Do I need Postgres?",
-    a: "No. Casper runs in-memory by default. Postgres is optional and only needed for the experimental UI mode where you want graph snapshots persisted across sessions.",
+    a: "Casper never writes Terraform or AWS resources. The only file it ever touches is casper/graph.html — the interactive graph view — and only after you (or the /casper slash command) explicitly call render_graph.",
   },
   {
     q: "How does drift detection work?",

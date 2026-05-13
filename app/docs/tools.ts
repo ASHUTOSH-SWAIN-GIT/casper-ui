@@ -33,27 +33,26 @@ export const tools: Tool[] = [
     description:
       "Returns a bundled view of the graph for a given intent: matching resources, similar HCL examples, reusable modules, and the conventions the codebase already follows. One call replaces what would otherwise be three or four targeted lookups.",
     whyItExists:
-      "Most infra tasks need the same four pieces of context to be answered well. Forcing the agent to fetch them separately wastes round-trips and burns context. get_context bundles them so the agent gets enough grounding from a single call to draft Terraform that fits the codebase.",
+      "Bundles four common lookups so the agent gets enough grounding from a single call to draft Terraform that fits the codebase.",
     params: [
-      { name: "intent", type: "string", required: true, desc: "Free-text description of the task being worked on." },
-      { name: "resource_type", type: "string", required: false, desc: "Optional filter narrowing the response to one Terraform type." },
+      { name: "intent", type: "string", required: true, desc: "Free-text description of what you're trying to build or understand." },
     ],
     returns:
-      "{ resources: Resource[], examples: HclBlock[], modules: Module[], conventions: { common_args, common_tags, modal_values } }",
-    exampleCall: `get_context({
-  intent: "add an RDS replica for prod",
-  resource_type: "aws_db_instance"
-})`,
+      "{ existing_resources: Resource[], similar_examples: Resource[], modules: Resource[], conventions: Resource[] }",
+    exampleCall: `get_context({ intent: "postgres read replica" })`,
     exampleResponse: `{
-  "resources": [
-    { "address": "aws_db_instance.prod", "engine": "postgres", "multi_az": true }
+  "existing_resources": [
+    { "Identifier": "aws_db_instance.orders_primary", "Type": "aws_db_instance" }
   ],
-  "examples": ["resource \\"aws_db_instance\\" \\"prod\\" { ... }"],
-  "modules": [],
-  "conventions": {
-    "common_args": ["backup_retention_period=14", "deletion_protection=true"],
-    "common_tags": { "Env": "prod", "Owner": "platform" }
-  }
+  "similar_examples": [
+    { "Identifier": "aws_db_instance.orders_replica", "Attributes": { "arguments": { ... } } }
+  ],
+  "modules": [
+    { "Identifier": "modules/rds", "Type": "terraform_module" }
+  ],
+  "conventions": [
+    { "Identifier": "modules/rds:aws_db_instance", "Type": "terraform_convention" }
+  ]
 }`,
   },
   {
@@ -61,24 +60,30 @@ export const tools: Tool[] = [
     name: "find_resource",
     tagline: "Targeted search",
     description:
-      "Searches the graph for resources by name, address, type, tag, or attribute and returns full records including source file and line.",
+      "Searches the graph for resources by name, type, provider, tag, or attribute. Returns up to `limit` matches with full arguments and source path.",
     whyItExists:
-      "Pinpoint lookups (\"the production database\", \"every bucket tagged Env=staging\") are the most common infra question. Casper exposes them as a typed search instead of leaving the agent to grep raw .tf files — fast, exact, and constant in token cost regardless of repo size.",
+      "Typed search beats grepping raw .tf files — exact, structured, constant in token cost regardless of repo size.",
     params: [
-      { name: "query", type: "string", required: true, desc: "Substring or attribute match against name, address, or tags." },
-      { name: "type", type: "string", required: false, desc: "Restrict results to a single Terraform resource type." },
+      { name: "query", type: "string", required: false, desc: "Free-text query matched against name, type, tags, attributes. Optional if you pass type or provider." },
+      { name: "type", type: "string", required: false, desc: "Restrict to a single Terraform resource type (e.g. aws_db_instance)." },
+      { name: "provider", type: "string", required: false, desc: "Restrict to a single provider (aws, kubernetes, datadog, …)." },
+      { name: "limit", type: "number", required: false, desc: "Max results. Default 25, max 200." },
     ],
-    returns: "Resource[] — { address, type, name, attrs, tags, source: { file, line } }",
-    exampleCall: `find_resource({ query: "prod", type: "aws_db_instance" })`,
-    exampleResponse: `[
-  {
-    "address": "aws_db_instance.prod",
-    "type": "aws_db_instance",
-    "name": "prod",
-    "attrs": { "engine": "postgres", "instance_class": "db.r6g.xlarge" },
-    "source": { "file": "modules/rds/main.tf", "line": 12 }
-  }
-]`,
+    returns: "{ matches: Resource[], truncated: boolean }",
+    exampleCall: `find_resource({ query: "orders_primary", type: "aws_db_instance" })`,
+    exampleResponse: `{
+  "matches": [
+    {
+      "ID": "tfres_c235ce39db5e57b52cf0da98",
+      "Type": "aws_db_instance",
+      "Provider": "aws",
+      "Identifier": "aws_db_instance.orders_primary",
+      "Source": "/path/to/repo/services/orders",
+      "Attributes": { "arguments": { "engine": "postgres", "instance_class": "var.instance_class" } }
+    }
+  ],
+  "truncated": false
+}`,
   },
   {
     id: "list_providers",
@@ -119,45 +124,53 @@ export const tools: Tool[] = [
     name: "get_dependencies",
     tagline: "Dependency graph",
     description:
-      "Walks the graph from a given resource and returns both upstream edges (what it depends on) and downstream edges (what depends on it), up to a configurable depth.",
+      "Returns dependencies for a given Casper resource ID — both what it depends on (upstream) and what depends on it (downstream).",
     whyItExists:
-      "Modify and destroy operations are dangerous when blast radius is invisible. By exposing the dependency walk as a first-class call, Casper makes it trivial to answer \"what breaks if this changes?\" before the change is proposed — not after it ships.",
+      "Makes \"what breaks if this changes?\" answerable before a change ships — not after.",
     params: [
-      { name: "address", type: "string", required: true, desc: "Resource address, e.g. aws_db_instance.prod." },
-      { name: "depth", type: "number", required: false, desc: "Hop limit. Defaults to 2." },
+      { name: "resource_id", type: "string", required: true, desc: "Casper resource ID returned by find_resource or get_context." },
+      { name: "limit", type: "number", required: false, desc: "Max results. Default 50, max 500." },
     ],
-    returns: "{ upstream: Edge[], downstream: Edge[] } where Edge = { from, to, kind }",
-    exampleCall: `get_dependencies({ address: "aws_db_instance.prod", depth: 3 })`,
+    returns: "{ dependencies: DependencyResult[], truncated?: boolean }",
+    exampleCall: `get_dependencies({ resource_id: "tfres_c235ce39db5e57b52cf0da98" })`,
     exampleResponse: `{
-  "upstream": [
-    { "from": "aws_subnet.private_a", "to": "aws_db_instance.prod", "kind": "ref" }
-  ],
-  "downstream": [
-    { "from": "aws_db_instance.prod", "to": "aws_lambda_function.api", "kind": "env" }
+  "dependencies": [
+    {
+      "Direction": "dependency",
+      "Kind": "reference",
+      "Resource": { "Identifier": "aws_security_group.app", "Type": "aws_security_group" }
+    },
+    {
+      "Direction": "dependent",
+      "Kind": "reference",
+      "Resource": { "Identifier": "aws_db_instance.orders_replica", "Type": "aws_db_instance" }
+    }
   ]
 }`,
   },
   {
     id: "find_similar",
     name: "find_similar",
-    tagline: "Pattern lookup",
+    tagline: "HCL examples",
     description:
-      "Returns existing resources of a given type, optionally filtered by attribute, formatted as full HCL blocks alongside their source location.",
+      "Finds existing resources or modules that match a natural-language description and returns them as concrete examples to base new code on. Synonym expansion handles common abbreviations (rds → aws_db_instance, vpc → aws_vpc, replica → replicate_source_db).",
     whyItExists:
-      "New code that doesn't look like the rest of the codebase creates review friction. find_similar surfaces real, working examples from the same repo so authored Terraform mirrors existing arg order, tagging style, and module call patterns by default.",
+      "Real working examples from the same repo prevent authored code from drifting away from house style.",
     params: [
-      { name: "type", type: "string", required: true, desc: "Resource type to search for." },
-      { name: "match", type: "object", required: false, desc: "Attribute filters, e.g. { engine: \"postgres\" }." },
+      { name: "description", type: "string", required: true, desc: "Natural-language description (e.g. \"read replica\", \"postgres database\", \"security group\")." },
     ],
-    returns: "Example[] — { hcl, source: { file, line } }",
-    exampleCall: `find_similar({
-  type: "aws_db_instance",
-  match: { engine: "postgres" }
-})`,
+    returns: "Resource[] — each with full attributes including the `arguments` HCL map",
+    exampleCall: `find_similar({ description: "read replica" })`,
     exampleResponse: `[
   {
-    "hcl": "resource \\"aws_db_instance\\" \\"prod\\" {\\n  engine = \\"postgres\\"\\n  ...\\n}",
-    "source": { "file": "modules/rds/main.tf", "line": 12 }
+    "Identifier": "aws_db_instance.orders_replica",
+    "Type": "aws_db_instance",
+    "Attributes": {
+      "arguments": {
+        "replicate_source_db": "aws_db_instance.orders_primary.identifier",
+        "instance_class": "var.instance_class"
+      }
+    }
   }
 ]`,
   },
@@ -188,44 +201,55 @@ export const tools: Tool[] = [
     name: "get_conventions",
     tagline: "How this codebase configures X",
     description:
-      "Aggregates how a Terraform resource type is configured across the repo: which arguments are commonly set, which tag keys recur, and the modal values for each argument.",
+      "Returns existing resources of a given type so the agent can see the actual arguments, tag style, and patterns this codebase uses for that type.",
     whyItExists:
-      "Conventions live in the diff between what's possible and what this team actually does. Reading the Terraform provider docs gives the former; this tool gives the latter — so authored code matches house style without anyone writing it down.",
+      "Authored code matches house style without anyone writing the style guide down.",
     params: [
-      { name: "type", type: "string", required: true, desc: "Terraform resource type." },
+      { name: "resource_type", type: "string", required: true, desc: "Terraform resource type (e.g. aws_db_instance, aws_security_group)." },
     ],
-    returns: "{ common_args: string[], common_tags: Record<string,string>, modal_values: Record<string,string> }",
-    exampleCall: `get_conventions({ type: "aws_s3_bucket" })`,
-    exampleResponse: `{
-  "common_args": ["versioning", "server_side_encryption_configuration"],
-  "common_tags": { "Owner": "platform", "Env": "prod" },
-  "modal_values": { "acl": "private" }
-}`,
+    returns: "Resource[] — same shape as find_resource, ranked by argument richness",
+    exampleCall: `get_conventions({ resource_type: "aws_db_instance" })`,
+    exampleResponse: `[
+  {
+    "Identifier": "aws_db_instance.orders_primary",
+    "Attributes": {
+      "arguments": {
+        "engine": "postgres",
+        "engine_version": "15.4",
+        "instance_class": "var.instance_class",
+        "deletion_protection": "true"
+      }
+    }
+  }
+]`,
   },
   {
     id: "simulate_impact",
     name: "simulate_impact",
     tagline: "Plan before you apply",
     description:
-      "Parses proposed HCL and returns a structured impact report: created, modified, and destroyed resources, broken references, similar real examples, reversibility context, and any policy violations the change would trigger.",
+      "Parses proposed HCL and returns a structured impact report: created/modified resources with arg diffs, blast radius, broken references, similar real examples, reversibility context, and any policy violations.",
     whyItExists:
-      "Terraform plan tells you what changes; it doesn't tell you what breaks downstream, what policy rule it trips, or whether the operation is reversible. simulate_impact answers all three before a single tf file is written, so unsafe changes get caught before review — not in production.",
+      "Catches unsafe changes — broken refs, policy violations, dangerous blast radius — before the .tf is even written.",
     params: [
-      { name: "hcl", type: "string", required: true, desc: "Proposed Terraform code as a string." },
-      { name: "operation", type: "create | modify | destroy", required: true, desc: "What the change is intended to do." },
+      { name: "code", type: "string", required: true, desc: "Proposed Terraform HCL — one or more resource blocks." },
     ],
-    returns: "{ created, modified, destroyed, broken_refs, policy_violations, reversibility }",
+    returns: "{ summary, created, modified, blast_radius, warnings, similar_examples, reversibility_context, policy_violations, workflow_decision }",
     exampleCall: `simulate_impact({
-  hcl: "resource \\"aws_db_instance\\" \\"prod_replica\\" { ... }",
-  operation: "create"
+  code: "resource \\"aws_db_instance\\" \\"replica\\" { replicate_source_db = aws_db_instance.primary.identifier }"
 })`,
     exampleResponse: `{
-  "created": ["aws_db_instance.prod_replica"],
-  "modified": [],
-  "destroyed": [],
-  "broken_refs": [],
-  "policy_violations": [],
-  "reversibility": "reversible"
+  "summary": "1 created, 0 modified, 1 in blast radius",
+  "created": [{ "identifier": "aws_db_instance.replica", ... }],
+  "blast_radius": [{ "identifier": "aws_db_instance.primary" }],
+  "warnings": [],
+  "policy_violations": [
+    {
+      "policy_id": "rds-deletion-protection",
+      "resource": "aws_db_instance.replica",
+      "message": "RDS instances must have deletion_protection enabled"
+    }
+  ]
 }`,
   },
   {
@@ -233,55 +257,27 @@ export const tools: Tool[] = [
     name: "describe_live_state",
     tagline: "AWS drift detection",
     description:
-      "Calls read-only AWS Describe APIs for a given resource address and diffs the live attributes against what Terraform state declares. Returns whether the resource is in sync and, if not, the per-attribute diff.",
+      "Resolves a set of resources from a natural-language intent or explicit IDs, calls read-only AWS Describe APIs for each, and returns per-resource drift between Terraform state and what AWS currently has.",
     whyItExists:
-      "Terraform state lies. Manual changes, partial applies, and out-of-band edits drift the real cloud away from the file. Without a way to detect this from inside the agent loop, every change is built on assumptions. This tool grounds the agent in what AWS actually has — not what was last applied.",
+      "Grounds the agent in what AWS actually has — not what was last applied. Catches out-of-band drift before the next plan misreads it.",
     params: [
-      { name: "address", type: "string", required: true, desc: "Resource address, e.g. aws_db_instance.prod." },
+      { name: "intent", type: "string", required: false, desc: "Natural-language description (e.g. \"orders database\"). Resolved via graph search + one-hop dependency walk." },
+      { name: "resource_ids", type: "string[]", required: false, desc: "Explicit Casper resource identifiers. Skips graph resolution. At least one of intent or resource_ids is required." },
     ],
-    returns: "{ in_sync: boolean, diffs: { attr, terraform, live }[] }",
-    exampleCall: `describe_live_state({ address: "aws_db_instance.prod" })`,
+    returns: "{ scope_resources, resources: ResourceState[], not_in_terraform, errors }",
+    exampleCall: `describe_live_state({ intent: "orders database" })`,
     exampleResponse: `{
-  "in_sync": false,
-  "diffs": [
-    { "attr": "backup_retention_period", "terraform": 7, "live": 14 }
+  "scope_resources": ["aws_db_instance.orders_primary"],
+  "resources": [
+    {
+      "identifier": "aws_db_instance.orders_primary",
+      "type": "aws_db_instance",
+      "drift": [
+        { "field": "backup_retention_period", "terraform_value": "7", "aws_value": "14" }
+      ]
+    }
   ]
 }`,
-    requirements: [
-      {
-        title: "AWS credentials required",
-        body: "This is the only tool that talks to AWS. Casper uses the standard AWS SDK credential chain, so any method the AWS CLI accepts will work. Credentials must have read-only Describe permissions for the resource types you query (e.g. rds:DescribeDBInstances, ec2:DescribeInstances, s3:GetBucket*). A managed policy like ReadOnlyAccess covers everything.",
-      },
-      {
-        title: "Option 1 — environment variables",
-        body: "Export these in the shell that launches your MCP client (Claude Code, Cursor, etc.). Casper inherits the environment.",
-        codeLabel: "shell",
-        code: `export AWS_ACCESS_KEY_ID=AKIA...
-export AWS_SECRET_ACCESS_KEY=...
-export AWS_REGION=us-east-1
-# optional, if using temporary creds:
-export AWS_SESSION_TOKEN=...`,
-      },
-      {
-        title: "Option 2 — shared profile (~/.aws/credentials)",
-        body: "Configure a named profile once, then point Casper at it via AWS_PROFILE. Best if you already use the AWS CLI.",
-        codeLabel: "~/.aws/credentials",
-        code: `[casper]
-aws_access_key_id = AKIA...
-aws_secret_access_key = ...
-region = us-east-1
-
-# then, in the shell that launches your MCP client:
-export AWS_PROFILE=casper`,
-      },
-      {
-        title: "Option 3 — SSO / assume-role",
-        body: "For orgs on IAM Identity Center, run aws sso login first; Casper picks up the cached credentials. For cross-account access, configure a profile with role_arn + source_profile and set AWS_PROFILE — the SDK handles the AssumeRole call.",
-        codeLabel: "shell",
-        code: `aws sso login --profile casper
-export AWS_PROFILE=casper`,
-      },
-    ],
   },
   {
     id: "list_state_sources",
@@ -330,18 +326,37 @@ export AWS_PROFILE=casper`,
     name: "dump_graph",
     tagline: "Full snapshot",
     description:
-      "Returns the entire loaded graph: every resource node, every dependency edge, and every active policy violation. Intentionally verbose.",
+      "Returns the complete graph — every resource, every edge, every policy violation per resource. Intentionally verbose; use only for full-repo audits or when bootstrapping a UI.",
     whyItExists:
-      "Some tasks need the whole picture at once: audits, external visualizations, debugging Casper itself. Rather than chaining dozens of targeted calls, dump_graph hands the full snapshot back in one shot. Reach for it when no narrower tool fits.",
+      "When you genuinely need every node. For any filtered question, find_resource is dramatically cheaper.",
     params: [],
-    returns: "{ nodes: Resource[], edges: Edge[], policy_violations: Violation[] }",
+    returns: "{ fetched_at, resource_count, dep_count, resources_by_type, resources, dependencies }",
     exampleCall: `dump_graph({})`,
     exampleResponse: `{
-  "nodes": [ /* every resource */ ],
-  "edges": [ /* every dependency */ ],
-  "policy_violations": [
-    { "policy_id": "rds-deletion-protection", "address": "aws_db_instance.staging" }
-  ]
+  "fetched_at": "2026-05-14T09:30:00Z",
+  "resource_count": 247,
+  "dep_count": 318,
+  "resources": [ /* every resource */ ],
+  "dependencies": [ /* every edge */ ]
+}`,
+  },
+  {
+    id: "render_graph",
+    name: "render_graph",
+    tagline: "Utility — writes graph.html",
+    description:
+      "Materializes the in-memory graph to an interactive HTML file (default casper/graph.html). The only tool that writes a file. After the first call, the file auto-updates on every .tf / .tfstate change. Used by the /casper slash command so the user has a fresh visual alongside the conversation.",
+    whyItExists:
+      "Agents read the typed graph. Humans want a picture. Lazy by design — no file lands on disk until this fires.",
+    params: [],
+    returns: "{ status: \"rendered\", path, scanned_dir, resource_count, edge_count }",
+    exampleCall: `render_graph({})`,
+    exampleResponse: `{
+  "status": "rendered",
+  "path": "/Users/you/repo/casper/graph.html",
+  "scanned_dir": "/Users/you/repo",
+  "resource_count": 247,
+  "edge_count": 318
 }`,
   },
 ];

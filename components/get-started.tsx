@@ -12,7 +12,7 @@ const quickSteps = [
   },
   {
     label: "Restart your MCP client",
-    desc: "Quit and reopen Claude Code, Claude Desktop, Cursor, or Codex CLI. The Casper server starts automatically and renders casper/graph.html.",
+    desc: "Quit and reopen Claude Code, Claude Desktop, Cursor, or Codex CLI. The Casper server starts automatically. The graph view (casper/graph.html) materializes the first time you run /casper or call render_graph.",
     code: "# Cmd+Q, then reopen",
   },
   {
