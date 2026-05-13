@@ -81,6 +81,40 @@ export const tools: Tool[] = [
 ]`,
   },
   {
+    id: "list_providers",
+    name: "list_providers",
+    tagline: "Provider inventory",
+    description:
+      "Returns every Terraform provider in use across the repo with a resource count and the top resource types per provider. A cheap, high-signal summary of what's deployed.",
+    whyItExists:
+      "Before drilling into any specific resource, the agent often needs a one-shot view of what kinds of infrastructure exist — AWS only, or AWS + Datadog + Kubernetes? This avoids grepping versions.tf or required_providers blocks and avoids dumping the full graph just to count things.",
+    params: [],
+    returns: "{ provider_count: number, providers: { provider, resource_count, top_types: { type, count }[] }[] }",
+    exampleCall: `list_providers({})`,
+    exampleResponse: `{
+  "provider_count": 2,
+  "providers": [
+    {
+      "provider": "aws",
+      "resource_count": 214,
+      "top_types": [
+        { "type": "aws_iam_policy", "count": 42 },
+        { "type": "aws_security_group", "count": 31 },
+        { "type": "aws_s3_bucket", "count": 18 }
+      ]
+    },
+    {
+      "provider": "datadog",
+      "resource_count": 12,
+      "top_types": [
+        { "type": "datadog_monitor", "count": 9 },
+        { "type": "datadog_dashboard", "count": 3 }
+      ]
+    }
+  ]
+}`,
+  },
+  {
     id: "get_dependencies",
     name: "get_dependencies",
     tagline: "Dependency graph",
@@ -248,6 +282,67 @@ export AWS_PROFILE=casper`,
 export AWS_PROFILE=casper`,
       },
     ],
+  },
+  {
+    id: "list_state_sources",
+    name: "list_state_sources",
+    tagline: "Remote state status",
+    description:
+      "Lists every remote Terraform state backend Casper discovered in this repo's .tf files, along with the last fetch status. Failed fetches include the verbatim error so the cause (usually AWS auth, wrong bucket/key, or NoSuchKey) is obvious.",
+    whyItExists:
+      "When a resource the user expects is missing from the graph, the answer is almost always \"the state file failed to load.\" Without this tool, the agent has to guess. With it, the agent can point at the specific backend that failed and explain what to fix — typically credentials or a bucket policy.",
+    params: [],
+    returns: "{ total: number, loaded: number, failed: number, sources: { type, identity, bucket, key, region, declared_in, status, error?, resource_count, edge_count }[] }",
+    exampleCall: `list_state_sources({})`,
+    exampleResponse: `{
+  "total": 2,
+  "loaded": 1,
+  "failed": 1,
+  "sources": [
+    {
+      "type": "s3",
+      "identity": "s3://acme-tfstate/prod/terraform.tfstate",
+      "bucket": "acme-tfstate",
+      "key": "prod/terraform.tfstate",
+      "region": "us-east-1",
+      "declared_in": "envs/prod/backend.tf",
+      "status": "loaded",
+      "resource_count": 214,
+      "edge_count": 318
+    },
+    {
+      "type": "s3",
+      "identity": "s3://acme-tfstate/staging/terraform.tfstate",
+      "bucket": "acme-tfstate",
+      "key": "staging/terraform.tfstate",
+      "region": "us-east-1",
+      "declared_in": "envs/staging/backend.tf",
+      "status": "failed",
+      "error": "AccessDenied: User is not authorized to perform s3:GetObject",
+      "resource_count": 0,
+      "edge_count": 0
+    }
+  ]
+}`,
+  },
+  {
+    id: "render_graph",
+    name: "render_graph",
+    tagline: "Interactive HTML graph",
+    description:
+      "Writes an interactive HTML rendering of the current graph to casper/graph.html and returns the absolute path. After the first call, the file auto-updates whenever .tf files change.",
+    whyItExists:
+      "A typed graph is useful to the agent, but humans want a picture. render_graph materializes the graph into a self-contained HTML file the user can open in any browser — pan, zoom, filter, click through to source. The /casper slash command calls this so the user always has a fresh visual alongside the conversation.",
+    params: [],
+    returns: "{ status: \"rendered\", path: string, scanned_dir: string, resource_count: number, edge_count: number }",
+    exampleCall: `render_graph({})`,
+    exampleResponse: `{
+  "status": "rendered",
+  "path": "/Users/you/code/infra/casper/graph.html",
+  "scanned_dir": "/Users/you/code/infra",
+  "resource_count": 214,
+  "edge_count": 318
+}`,
   },
   {
     id: "dump_graph",
