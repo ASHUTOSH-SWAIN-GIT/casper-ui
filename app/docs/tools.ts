@@ -326,25 +326,6 @@ export AWS_PROFILE=casper`,
 }`,
   },
   {
-    id: "render_graph",
-    name: "render_graph",
-    tagline: "Interactive HTML graph",
-    description:
-      "Writes an interactive HTML rendering of the current graph to casper/graph.html and returns the absolute path. After the first call, the file auto-updates whenever .tf files change.",
-    whyItExists:
-      "A typed graph is useful to the agent, but humans want a picture. render_graph materializes the graph into a self-contained HTML file the user can open in any browser — pan, zoom, filter, click through to source. The /casper slash command calls this so the user always has a fresh visual alongside the conversation.",
-    params: [],
-    returns: "{ status: \"rendered\", path: string, scanned_dir: string, resource_count: number, edge_count: number }",
-    exampleCall: `render_graph({})`,
-    exampleResponse: `{
-  "status": "rendered",
-  "path": "/Users/you/code/infra/casper/graph.html",
-  "scanned_dir": "/Users/you/code/infra",
-  "resource_count": 214,
-  "edge_count": 318
-}`,
-  },
-  {
     id: "dump_graph",
     name: "dump_graph",
     tagline: "Full snapshot",

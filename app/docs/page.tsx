@@ -48,7 +48,7 @@ export default function DocsPage() {
               Tool reference
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-black/70">
-              Casper exposes 12 MCP tools. Each one is read-only, returns
+              Casper exposes 11 MCP tools. Each one is read-only, returns
               structured JSON, and operates on the in-memory graph built from
               your Terraform repo at startup. The graph hot-reloads on every{" "}
               <code className="font-mono text-black">.tf</code> /{" "}
@@ -136,7 +136,7 @@ export default function DocsPage() {
                 ["Scan", "Walk the tree, collect every .tf and .tfstate file (skipping vendored modules and .terraform caches)."],
                 ["Parse", "Use HashiCorp's HCL parser to extract resource blocks, attributes, references, and module calls into typed records."],
                 ["Link", "Resolve cross-file references and depends_on into directed edges. Module calls are wired to their definitions."],
-                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 12 MCP tools."],
+                ["Index", "Compute conventions, evaluate policies, and build the lookup tables that power the 11 MCP tools."],
               ].map(([step, desc], i) => (
                 <li
                   key={step}
@@ -554,7 +554,7 @@ deny[msg] {
               Tools
             </div>
             <h2 className="mt-3 text-4xl font-semibold tracking-tight text-black">
-              All 12 tools, in detail
+              All 11 tools, in detail
             </h2>
           </div>
 
