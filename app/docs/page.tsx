@@ -24,6 +24,15 @@ const sidebarGroups = [
     ],
   },
   {
+    title: "AWS credentials",
+    sections: [
+      { id: "aws-overview", label: "When AWS is needed" },
+      { id: "aws-auth", label: "How Casper authenticates" },
+      { id: "aws-permissions", label: "Required permissions" },
+      { id: "aws-config", label: "Config reference" },
+    ],
+  },
+  {
     title: "Tools",
     sections: tools.map((t) => ({ id: t.id, label: t.name })),
   },
@@ -560,6 +569,329 @@ deny[msg] {
                 follow-up.
               </p>
             </div>
+          </article>
+
+          <article id="aws-overview" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+            <div className="text-xs uppercase tracking-[0.22em] text-black/60">
+              AWS credentials
+            </div>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black">
+              When Casper needs AWS access
+            </h2>
+            <p className="mt-4 max-w-3xl leading-7 text-black/70">
+              Casper builds its graph from{" "}
+              <code className="font-mono text-black">.tf</code> code alone
+              with zero credentials. Two tools want more: drift detection and
+              remote state fetching. Both are read-only.
+            </p>
+
+            <div className="mt-6 overflow-hidden border border-black/10 bg-white">
+              <div className="grid grid-cols-[180px_1fr_180px] gap-4 border-b border-black/10 bg-[var(--surface-2)] px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-black/55">
+                <span>Tool</span>
+                <span>What it reads from AWS</span>
+                <span>Without creds</span>
+              </div>
+              {[
+                ["describe_live_state", "RDS, EC2, S3, IAM, Lambda, EKS — Describe* / Get* APIs for drift checks against Terraform state.", "Tool returns an error explaining setup."],
+                ["S3 backend state fetcher", "s3:GetObject on the bucket / key declared in `terraform { backend \"s3\" {} }` blocks in your .tf files.", "Backend discovery still runs; fetch logs as `status: failed` with AccessDenied. Graph stays code-only."],
+                ["list_state_sources", "Reports the status of the S3 backend fetcher above.", "Works either way — surfaces the failure."],
+              ].map(([tool, what, fallback], i) => (
+                <div
+                  key={tool}
+                  className={`grid grid-cols-[180px_1fr_180px] gap-4 px-4 py-3 text-sm ${
+                    i > 0 ? "border-t border-black/10" : ""
+                  }`}
+                >
+                  <code className="font-mono text-black">{tool}</code>
+                  <span className="text-black/70">{what}</span>
+                  <span className="text-black/55">{fallback}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-5 max-w-3xl leading-7 text-black/70">
+              No other tool touches AWS.{" "}
+              <code className="font-mono text-black">find_resource</code>,{" "}
+              <code className="font-mono text-black">get_context</code>,{" "}
+              <code className="font-mono text-black">simulate_impact</code>,{" "}
+              <code className="font-mono text-black">dump_graph</code> &mdash;
+              all of them work on the in-memory graph and never make a
+              network call. You can run Casper on a laptop with no AWS access
+              at all and most of the tooling still works.
+            </p>
+          </article>
+
+          <article id="aws-auth" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+            <h3 className="text-xl font-semibold text-black">
+              How Casper authenticates
+            </h3>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Casper uses the standard AWS SDK credential chain. It looks for
+              credentials in this order:
+            </p>
+            <ol className="mt-4 max-w-3xl list-decimal space-y-2 pl-6 text-sm leading-6 text-black/70">
+              <li>
+                Environment variables (
+                <code className="font-mono text-black">AWS_ACCESS_KEY_ID</code>,{" "}
+                <code className="font-mono text-black">AWS_SECRET_ACCESS_KEY</code>,{" "}
+                <code className="font-mono text-black">AWS_SESSION_TOKEN</code>)
+              </li>
+              <li>
+                <code className="font-mono text-black">AWS_PROFILE</code> from{" "}
+                <code className="font-mono text-black">~/.aws/credentials</code>
+              </li>
+              <li>
+                SSO session if you&rsquo;ve run{" "}
+                <code className="font-mono text-black">aws sso login</code>
+              </li>
+              <li>Shared config in <code className="font-mono text-black">~/.aws/config</code></li>
+              <li>EC2 / ECS / EKS instance role metadata (if running on AWS)</li>
+            </ol>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Option A &mdash; ambient credentials (recommended)
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              You already have AWS credentials. Just leave the{" "}
+              <code className="font-mono text-black">.casper/config.yaml</code>{" "}
+              section empty (or skip the file). Casper inherits whatever
+              identity your shell already has &mdash; SSO, profile,
+              environment, instance role.
+            </p>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                shell
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`aws sso login --profile my-profile
+export AWS_PROFILE=my-profile
+
+# Now start your MCP client (Claude Code, Cursor, etc.)
+# Casper spawned by the client inherits AWS_PROFILE.`}</code>
+              </pre>
+            </div>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Option B &mdash; assume a dedicated read-only role
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Larger orgs typically want Casper to use a least-privilege role
+              rather than your full developer identity. Declare the role ARN
+              in{" "}
+              <code className="font-mono text-black">.casper/config.yaml</code>{" "}
+              at the root of the Terraform repo Casper is scanning. Casper
+              still uses your ambient credentials as the base identity, then
+              calls{" "}
+              <code className="font-mono text-black">sts:AssumeRole</code> to
+              get temporary credentials for the configured role.
+            </p>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                .casper/config.yaml
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`cloud:
+  aws:
+    role_arn: arn:aws:iam::123456789012:role/casper-readonly
+    regions:
+      - us-east-1
+      - ap-south-1`}</code>
+              </pre>
+            </div>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              <code className="font-mono text-black">regions</code> tells
+              Casper which regions to query for regional resources (RDS, EC2,
+              S3, ELB, etc.). Defaults to{" "}
+              <code className="font-mono text-black">us-east-1</code> when
+              omitted. The S3 backend fetcher always uses the region declared
+              in each <code className="font-mono text-black">backend &ldquo;s3&rdquo; {}</code> block,
+              not this list.
+            </p>
+
+            <div className="mt-6 border-l-2 border-[var(--accent)] bg-[var(--surface-2)] px-4 py-3">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-black/55">
+                Read-only by construction
+              </div>
+              <p className="text-sm leading-6 text-black/70">
+                Casper only calls <code className="font-mono text-black">Describe*</code>,{" "}
+                <code className="font-mono text-black">Get*</code>, and{" "}
+                <code className="font-mono text-black">List*</code> APIs. It
+                never writes to AWS. Grant the smallest possible permission
+                set &mdash; see the next section.
+              </p>
+            </div>
+          </article>
+
+          <article id="aws-permissions" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+            <h3 className="text-xl font-semibold text-black">
+              Required permissions
+            </h3>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Two minimal IAM policies depending on which tools you want to
+              use. Attach both to the role (or user) Casper authenticates as.
+            </p>
+
+            <h4 className="mt-6 text-sm font-semibold text-black">
+              For S3 state fetching only
+            </h4>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                IAM policy
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::your-state-bucket/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "arn:aws:kms:*:*:key/your-state-key-id"
+    }
+  ]
+}`}</code>
+              </pre>
+            </div>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              The <code className="font-mono text-black">kms:Decrypt</code>{" "}
+              statement is only needed if your state bucket uses KMS
+              encryption (most do). Scope the resource ARN to the specific
+              key when possible.
+            </p>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              For describe_live_state drift detection
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Cover the AWS service families Casper supports today. You can
+              start narrow (only what your repo actually uses) and grow over
+              time.
+            </p>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                IAM policy
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Action": [
+      "rds:DescribeDBInstances",
+      "rds:DescribeDBClusters",
+      "rds:DescribeDBSubnetGroups",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcs",
+      "ec2:DescribeInstances",
+      "s3:GetBucketLocation",
+      "s3:GetBucketVersioning",
+      "s3:GetBucketTagging",
+      "iam:GetRole",
+      "lambda:GetFunction",
+      "eks:DescribeCluster"
+    ],
+    "Resource": "*"
+  }]
+}`}</code>
+              </pre>
+            </div>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              AWS managed policy{" "}
+              <code className="font-mono text-black">arn:aws:iam::aws:policy/ReadOnlyAccess</code>{" "}
+              also works as a coarse alternative &mdash; it&rsquo;s broader
+              than Casper needs but easy to attach.
+            </p>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Trust policy for assume-role
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              If you use Option B (assume role), the target role needs a
+              trust policy allowing your developer identity (or CI identity)
+              to assume it.
+            </p>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                trust policy
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`{
+  "Version": "2012-10-17",
+  "Statement": [{
+    "Effect": "Allow",
+    "Principal": {
+      "AWS": "arn:aws:iam::123456789012:role/developer"
+    },
+    "Action": "sts:AssumeRole"
+  }]
+}`}</code>
+              </pre>
+            </div>
+          </article>
+
+          <article id="aws-config" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+            <h3 className="text-xl font-semibold text-black">
+              Config reference
+            </h3>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              The full surface area &mdash; everything Casper reads from{" "}
+              <code className="font-mono text-black">.casper/config.yaml</code>{" "}
+              for AWS.
+            </p>
+
+            <div className="mt-5 overflow-hidden border border-black/10 bg-white">
+              <div className="grid grid-cols-[180px_100px_1fr] gap-4 border-b border-black/10 bg-[var(--surface-2)] px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-black/55">
+                <span>Field</span>
+                <span>Required</span>
+                <span>Description</span>
+              </div>
+              {[
+                ["cloud.aws.role_arn", "no", "Role to assume for every AWS call. Omit to use ambient credentials directly."],
+                ["cloud.aws.regions", "no", "List of regions to query. Defaults to [us-east-1]. The S3 backend fetcher overrides this per-backend using each backend block's declared region."],
+              ].map(([field, required, desc], i) => (
+                <div
+                  key={field}
+                  className={`grid grid-cols-[180px_100px_1fr] gap-4 px-4 py-3 text-sm ${
+                    i > 0 ? "border-t border-black/10" : ""
+                  }`}
+                >
+                  <code className="font-mono text-black">{field}</code>
+                  <span className={required === "yes" ? "text-[var(--accent)] font-medium" : "text-black/40"}>
+                    {required}
+                  </span>
+                  <span className="text-black/70">{desc}</span>
+                </div>
+              ))}
+            </div>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Minimal example
+            </h4>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                .casper/config.yaml
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`cloud:
+  aws:
+    role_arn: arn:aws:iam::123456789012:role/casper-readonly
+    regions: [us-east-1, ap-south-1]`}</code>
+              </pre>
+            </div>
+
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              If you don&rsquo;t need AWS at all, you can skip the file
+              entirely. Casper still runs, just with{" "}
+              <code className="font-mono text-black">describe_live_state</code>{" "}
+              returning a clear configuration-needed error and S3 backend
+              fetches degrading to a logged failure in{" "}
+              <code className="font-mono text-black">list_state_sources</code>.
+            </p>
           </article>
 
           <div className="mb-8 mt-20 border-t border-black/10 pt-12">
