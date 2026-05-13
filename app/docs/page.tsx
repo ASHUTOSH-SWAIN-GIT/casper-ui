@@ -258,43 +258,31 @@ export default function DocsPage() {
               maintain a second policy format.
             </p>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Casper looks for policies in two places, in order:
+              On startup Casper recursively walks the scanned directory for{" "}
+              <code className="font-mono text-black">*.rego</code> files
+              (skipping{" "}
+              <code className="font-mono text-black">.git</code>,{" "}
+              <code className="font-mono text-black">.terraform</code>,{" "}
+              <code className="font-mono text-black">node_modules</code>,{" "}
+              <code className="font-mono text-black">vendor</code>,{" "}
+              <code className="font-mono text-black">testdata</code>). Every
+              file found becomes a loaded policy &mdash; no precedence
+              between directories. Teams with existing Conftest libraries in{" "}
+              <code className="font-mono text-black">policy/</code> get
+              zero-config compat. Teams that prefer a clean convention can
+              drop policies in{" "}
+              <code className="font-mono text-black">.casper/policies/</code>{" "}
+              (symmetric with{" "}
+              <code className="font-mono text-black">.casper/policies.yaml</code>).
+              Either layout works; mixed is fine too.
             </p>
-            <ol className="mt-3 max-w-3xl list-decimal space-y-2 pl-6 text-sm leading-6 text-black/70">
-              <li>
-                <code className="font-mono text-black">.casper/policies/</code>{" "}
-                &mdash; the Casper convention path, symmetric with{" "}
-                <code className="font-mono text-black">.casper/policies.yaml</code>.
-                If this directory exists and contains{" "}
-                <code className="font-mono text-black">.rego</code> files,
-                Casper uses only those. Best for repos where policies are
-                explicitly Casper-managed.
-              </li>
-              <li>
-                Recursive walk of the whole repo &mdash; the fallback when
-                no{" "}
-                <code className="font-mono text-black">.casper/policies/</code>{" "}
-                exists. Picks up any{" "}
-                <code className="font-mono text-black">.rego</code> file
-                wherever it lives (skipping{" "}
-                <code className="font-mono text-black">.git</code>,{" "}
-                <code className="font-mono text-black">.terraform</code>,{" "}
-                <code className="font-mono text-black">node_modules</code>,{" "}
-                <code className="font-mono text-black">vendor</code>,{" "}
-                <code className="font-mono text-black">testdata</code>).
-                Zero-config compat with existing Conftest /
-                terraform-aws-conftest libraries that already keep policies in{" "}
-                <code className="font-mono text-black">policy/</code> or
-                similar.
-              </li>
-            </ol>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
               Every loaded file is compiled once by the embedded OPA evaluator
               and reused across every policy check. As soon as any{" "}
               <code className="font-mono text-black">.rego</code> file is
-              found via either path, YAML argument rules are disabled so
-              there&rsquo;s one source of truth per session. Workflow rules
-              keep firing independently from{" "}
+              found, YAML argument rules are disabled so there&rsquo;s one
+              source of truth per session. Workflow rules keep firing
+              independently from{" "}
               <code className="font-mono text-black">.casper/policies.yaml</code>.
             </p>
 
