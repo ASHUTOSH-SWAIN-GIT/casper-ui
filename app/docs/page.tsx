@@ -17,7 +17,8 @@ const sidebarGroups = [
     title: "Policies",
     sections: [
       { id: "policies", label: "Overview" },
-      { id: "argument-rules", label: "Argument rules" },
+      { id: "rego-support", label: "Rego (OPA) support" },
+      { id: "argument-rules", label: "YAML argument rules" },
       { id: "workflow-rules", label: "Workflow rules" },
       { id: "policy-violations", label: "How violations surface" },
     ],
@@ -111,7 +112,7 @@ export default function DocsPage() {
                 ["Nodes", "Resources, data sources, module calls, and module definitions. Each carries its full attribute set, tags, and source file:line."],
                 ["Edges", "References, depends_on relationships, and module input/output wiring. Edges are typed and traversable in both directions."],
                 ["Conventions", "An aggregated view of how resource types are configured across the repo: common args, modal values, recurring tag keys."],
-                ["Policies", "Rules from .casper/policies.yaml evaluated against the graph; violations attach to affected resources."],
+                ["Policies", "Rules from .rego files (preferred) or .casper/policies.yaml evaluated against the graph; violations attach to affected resources."],
               ].map(([k, v]) => (
                 <li key={k} className="flex gap-3">
                   <span className="mt-2 size-1.5 rounded-full bg-[var(--accent)] shrink-0" />
@@ -197,18 +198,24 @@ export default function DocsPage() {
               Policies
             </div>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-black">
-              Encode your team&rsquo;s rules in YAML
+              Bring your own policies, or use simple YAML
             </h2>
             <p className="mt-4 max-w-3xl leading-7 text-black/70">
-              Drop a{" "}
-              <code className="font-mono text-black">
-                .casper/policies.yaml
-              </code>{" "}
-              file at the root of your Terraform repo and Casper enforces it on
-              every change the agent proposes. You write what&rsquo;s required;
-              the MCP server checks it on every{" "}
+              Casper enforces org policy on every change the agent proposes.
+              You write what&rsquo;s required; the MCP server checks it on
+              every{" "}
               <code className="font-mono text-black">simulate_impact</code>{" "}
               call without anyone reminding the agent.
+            </p>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Two backends, picked automatically. If Casper finds any{" "}
+              <code className="font-mono text-black">.rego</code> files in
+              the repo it treats them as the authoritative policy source
+              (compatible with existing Conftest libraries). Otherwise it
+              falls back to a simple YAML format in{" "}
+              <code className="font-mono text-black">.casper/policies.yaml</code>{" "}
+              for teams that aren&rsquo;t already on OPA. Zero config either
+              way.
             </p>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
               This is the difference between <em>hoping</em> the agent follows
@@ -217,9 +224,9 @@ export default function DocsPage() {
 
             <ol className="mt-6 grid grid-cols-1 gap-px border border-black/10 bg-black/10 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                ["Define", "Write rules in .casper/policies.yaml for argument constraints and workflow routing."],
-                ["Load", "Casper reads the file on startup and reloads automatically when it changes."],
-                ["Check", "Every simulate_impact and dump_graph call evaluates the rules against the proposed change."],
+                ["Discover", "On startup Casper walks the repo for .rego files; falls back to .casper/policies.yaml when none exist."],
+                ["Compile", "Rego policies are compiled once via the embedded OPA engine. YAML rules are parsed into typed checks."],
+                ["Check", "Every simulate_impact and dump_graph call evaluates the loaded engine against affected resources."],
                 ["Correct", "The agent reads policy_violations[] in the response and fixes its own draft before applying."],
               ].map(([step, desc], i) => (
                 <li
@@ -240,15 +247,125 @@ export default function DocsPage() {
             </ol>
           </article>
 
-          <article id="argument-rules" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+          <article id="rego-support" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
             <h3 className="text-xl font-semibold text-black">
-              Argument rules
+              Rego (OPA) support
             </h3>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Each rule names a Terraform resource type, declares one or more
-              argument constraints, and gives a human-readable{" "}
+              Most teams investing in IaC governance already have a policy
+              library &mdash; usually Rego files used with Conftest. Casper
+              evaluates them directly so you don&rsquo;t have to translate or
+              maintain a second policy format.
+            </p>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              On startup Casper recursively walks the scanned directory for{" "}
+              <code className="font-mono text-black">*.rego</code> files
+              (skipping{" "}
+              <code className="font-mono text-black">.git</code>,{" "}
+              <code className="font-mono text-black">.terraform</code>,{" "}
+              <code className="font-mono text-black">node_modules</code>,{" "}
+              <code className="font-mono text-black">vendor</code>,{" "}
+              <code className="font-mono text-black">testdata</code>). Every
+              file found is compiled once by the embedded OPA evaluator and
+              reused across every policy check. When any{" "}
+              <code className="font-mono text-black">.rego</code> file
+              exists, YAML policies are disabled for that session so there&rsquo;s
+              one source of truth.
+            </p>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Example policy
+            </h4>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                policy/s3.rego
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`package policy
+
+# Deny any aws_s3_bucket where the acl is set to public-read.
+deny[msg] {
+  input.type == "aws_s3_bucket"
+  input.attributes.acl == "public-read"
+  msg := sprintf("s3 bucket %s is public-read", [input.identifier])
+}`}</code>
+              </pre>
+            </div>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Input shape
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Each policy is evaluated once per resource. The input passed to
+              every <code className="font-mono text-black">deny</code> rule
+              has this shape:
+            </p>
+            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
+              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
+                input (per resource)
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
+                <code>{`{
+  "type":       "aws_s3_bucket",
+  "identifier": "aws_s3_bucket.data",
+  "attributes": { "bucket": "my-bucket", "acl": "private", ... },
+  "tags":       { "env": "prod", "owner": "platform" }
+}`}</code>
+              </pre>
+            </div>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Policies coming from Conftest reference{" "}
+              <code className="font-mono text-black">
+                input.resource_changes[_].change.after.values
+              </code>
+              ; against Casper, the equivalent is{" "}
+              <code className="font-mono text-black">input.attributes</code>.
+              Existing rules port over with light edits.
+            </p>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Rego syntax version
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Casper compiles policies in OPA&rsquo;s v0 syntax by default
+              because that&rsquo;s what the existing Conftest /
+              terraform-aws-conftest ecosystem uses. Policies written for
+              v1 keep working as long as they declare{" "}
+              <code className="font-mono text-black">import rego.v1</code>{" "}
+              at the top.
+            </p>
+
+            <h4 className="mt-8 text-sm font-semibold text-black">
+              Deny shapes
+            </h4>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              Casper accepts both common patterns. A bare string{" "}
+              <code className="font-mono text-black">
+                deny[msg] {`{ msg := "..." }`}
+              </code>
+              becomes a violation with just a message. An object{" "}
+              <code className="font-mono text-black">
+                deny[v] {`{ v := { "msg": "...", "policy_id": "..." } }`}
+              </code>
+              also populates the policy_id and details fields on the
+              violation, which the agent surfaces verbatim to the user.
+            </p>
+          </article>
+
+          <article id="argument-rules" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
+            <h3 className="text-xl font-semibold text-black">
+              YAML argument rules
+            </h3>
+            <p className="mt-3 max-w-3xl leading-7 text-black/70">
+              For teams that aren&rsquo;t already on OPA, Casper ships a
+              simple YAML format. Each rule names a Terraform resource type,
+              declares one or more argument constraints, and gives a
+              human-readable{" "}
               <code className="font-mono text-black">message</code> the
-              agent can quote back when it asks you to confirm a fix.
+              agent can quote back when it asks you to confirm a fix. Loaded
+              only when no{" "}
+              <code className="font-mono text-black">.rego</code> files
+              exist in the repo.
             </p>
 
             <div className="mt-5 overflow-hidden border border-black/10 bg-white">
@@ -418,13 +535,16 @@ export default function DocsPage() {
 
             <div className="mt-6 border-l-2 border-[var(--accent)] bg-[var(--surface-2)] px-4 py-3">
               <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-black/55">
-                Live reload
+                Reload behavior
               </div>
               <p className="text-sm leading-6 text-black/70">
-                Casper watches{" "}
+                YAML policies in{" "}
                 <code className="font-mono text-black">.casper/policies.yaml</code>{" "}
-                alongside the rest of the repo. Edit, save, and the next tool
-                call uses the new policies. No server restart needed.
+                are reread automatically on every rescan. Adding or removing{" "}
+                <code className="font-mono text-black">.rego</code> files
+                requires a server restart for now &mdash; the embedded OPA
+                evaluator compiles policies once at startup. Hot-swap is a
+                follow-up.
               </p>
             </div>
           </article>
