@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Nav() {
   return (
@@ -21,6 +22,7 @@ export function Nav() {
         >
           GitHub
         </a>
+        <ThemeToggle />
       </nav>
     </header>
   );
