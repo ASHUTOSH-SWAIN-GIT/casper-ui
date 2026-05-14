@@ -187,21 +187,12 @@ export default function DocsPage() {
               Why a graph
             </h3>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Agents that read raw <code className="font-mono text-black">.tf</code>{" "}
-              files hit three walls almost immediately. Files don&rsquo;t fit
-              into context on real-world repos. Cross-module references
-              require following <code className="font-mono text-black">module.foo.bar</code>{" "}
-              indirection that&rsquo;s easy to miss. And questions like
-              &quot;what depends on this RDS instance?&quot; force a full
-              repo grep with no guarantee of completeness.
-            </p>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              The graph turns those problems into typed lookups. Token cost
-              stays flat regardless of repo size, every reference is resolved
-              once at parse time, and dependency walks are O(1) per hop.
-              Equally important, the graph is the surface that policies,
-              drift detection, and impact simulation can be evaluated
-              against. None of that is possible by reading files alone.
+              Casper resolves resources, references, modules, policies, and
+              state once at parse time, then tools query the graph instead
+              of rereading raw Terraform. Token cost stays flat regardless
+              of repo size, dependency walks are O(1) per hop, and policies
+              and drift detection have a structured surface to evaluate
+              against.
             </p>
           </article>
 
@@ -213,25 +204,15 @@ export default function DocsPage() {
               Bring your own policies, or use simple YAML
             </h2>
             <p className="mt-4 max-w-3xl leading-7 text-black/70">
-              Casper enforces org policy on every change the agent proposes.
-              You write what&rsquo;s required; the MCP server checks it on
-              every{" "}
+              Casper checks org policy on every{" "}
               <code className="font-mono text-black">simulate_impact</code>{" "}
-              call without anyone reminding the agent.
-            </p>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Two backends, picked automatically. If Casper finds any{" "}
-              <code className="font-mono text-black">.rego</code> files in
-              the repo it treats them as the authoritative policy source
-              (compatible with existing Conftest libraries). Otherwise it
-              falls back to a simple YAML format in{" "}
-              <code className="font-mono text-black">.casper/policies.yaml</code>{" "}
-              for teams that aren&rsquo;t already on OPA. Zero config either
-              way.
-            </p>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              This is the difference between <em>hoping</em> the agent follows
-              your conventions and <em>guaranteeing</em> it does.
+              call. If the repo has any{" "}
+              <code className="font-mono text-black">.rego</code> files,
+              they&rsquo;re the source of truth (compatible with existing
+              Conftest libraries). Otherwise Casper falls back to a simple
+              YAML format in{" "}
+              <code className="font-mono text-black">.casper/policies.yaml</code>.
+              Zero config either way.
             </p>
 
             <ol className="mt-6 grid grid-cols-1 gap-px border border-black/10 bg-black/10 sm:grid-cols-2 lg:grid-cols-4">
@@ -264,38 +245,19 @@ export default function DocsPage() {
               Rego (OPA) support
             </h3>
             <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Most teams investing in IaC governance already have a policy
-              library &mdash; usually Rego files used with Conftest. Casper
-              evaluates them directly so you don&rsquo;t have to translate or
-              maintain a second policy format.
-            </p>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              On startup Casper recursively walks the scanned directory for{" "}
+              Casper recursively scans the repo for{" "}
               <code className="font-mono text-black">*.rego</code> files
-              (skipping{" "}
-              <code className="font-mono text-black">.git</code>,{" "}
+              (skipping <code className="font-mono text-black">.git</code>,{" "}
               <code className="font-mono text-black">.terraform</code>,{" "}
               <code className="font-mono text-black">node_modules</code>,{" "}
               <code className="font-mono text-black">vendor</code>,{" "}
-              <code className="font-mono text-black">testdata</code>). Every
-              file found becomes a loaded policy &mdash; no precedence
-              between directories. Teams with existing Conftest libraries in{" "}
-              <code className="font-mono text-black">policy/</code> get
-              zero-config compat. Teams that prefer a clean convention can
-              drop policies in{" "}
-              <code className="font-mono text-black">.casper/policies/</code>{" "}
-              (symmetric with{" "}
-              <code className="font-mono text-black">.casper/policies.yaml</code>).
-              Either layout works; mixed is fine too.
-            </p>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Every loaded file is compiled once by the embedded OPA evaluator
-              and reused across every policy check. As soon as any{" "}
+              <code className="font-mono text-black">testdata</code>).
+              Every file becomes a loaded policy. The embedded OPA evaluator
+              compiles them once at startup. As soon as any{" "}
               <code className="font-mono text-black">.rego</code> file is
-              found, YAML argument rules are disabled so there&rsquo;s one
-              source of truth per session. Workflow rules keep firing
-              independently from{" "}
-              <code className="font-mono text-black">.casper/policies.yaml</code>.
+              found, YAML argument rules are disabled; workflow rules in{" "}
+              <code className="font-mono text-black">.casper/policies.yaml</code>{" "}
+              keep firing.
             </p>
 
             <h4 className="mt-8 text-sm font-semibold text-black">
@@ -308,7 +270,6 @@ export default function DocsPage() {
               <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
                 <code>{`package policy
 
-# Deny any aws_s3_bucket where the acl is set to public-read.
 deny[msg] {
   input.type == "aws_s3_bucket"
   input.attributes.acl == "public-read"
@@ -318,17 +279,9 @@ deny[msg] {
             </div>
 
             <h4 className="mt-8 text-sm font-semibold text-black">
-              Input shape
+              Input shape (per resource)
             </h4>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Each policy is evaluated once per resource. The input passed to
-              every <code className="font-mono text-black">deny</code> rule
-              has this shape:
-            </p>
             <div className="mt-3 overflow-hidden border border-black/10 bg-white">
-              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
-                input (per resource)
-              </div>
               <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
                 <code>{`{
   "type":       "aws_s3_bucket",
@@ -338,43 +291,6 @@ deny[msg] {
 }`}</code>
               </pre>
             </div>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Policies coming from Conftest reference{" "}
-              <code className="font-mono text-black">
-                input.resource_changes[_].change.after.values
-              </code>
-              ; against Casper, the equivalent is{" "}
-              <code className="font-mono text-black">input.attributes</code>.
-              Existing rules port over with light edits.
-            </p>
-
-            <h4 className="mt-8 text-sm font-semibold text-black">
-              Rego syntax version
-            </h4>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Casper compiles policies in OPA&rsquo;s v0 syntax by default
-              because that&rsquo;s what the existing Conftest /
-              terraform-aws-conftest ecosystem uses. Policies written for
-              v1 keep working as long as they declare{" "}
-              <code className="font-mono text-black">import rego.v1</code>{" "}
-              at the top.
-            </p>
-
-            <h4 className="mt-8 text-sm font-semibold text-black">
-              Deny shapes
-            </h4>
-            <p className="mt-3 max-w-3xl leading-7 text-black/70">
-              Casper accepts both common patterns. A bare string{" "}
-              <code className="font-mono text-black">
-                deny[msg] {`{ msg := "..." }`}
-              </code>
-              becomes a violation with just a message. An object{" "}
-              <code className="font-mono text-black">
-                deny[v] {`{ v := { "msg": "...", "policy_id": "..." } }`}
-              </code>
-              also populates the policy_id and details fields on the
-              violation, which the agent surfaces verbatim to the user.
-            </p>
           </article>
 
           <article id="argument-rules" className="mt-16 scroll-mt-20 border-t border-black/10 pt-12">
@@ -613,14 +529,8 @@ deny[msg] {
             </div>
 
             <p className="mt-5 max-w-3xl leading-7 text-black/70">
-              No other tool touches AWS.{" "}
-              <code className="font-mono text-black">find_resource</code>,{" "}
-              <code className="font-mono text-black">get_context</code>,{" "}
-              <code className="font-mono text-black">simulate_impact</code>,{" "}
-              <code className="font-mono text-black">dump_graph</code> &mdash;
-              all of them work on the in-memory graph and never make a
-              network call. You can run Casper on a laptop with no AWS access
-              at all and most of the tooling still works.
+              No other tool touches AWS. Everything else runs against the
+              in-memory graph.
             </p>
           </article>
 
@@ -917,15 +827,6 @@ export AWS_SESSION_TOKEN=...`}</code>
                 <p className="mt-4 max-w-3xl leading-7 text-black/70">
                   {t.description}
                 </p>
-
-                <div className="mt-5 max-w-4xl border-l-2 border-[var(--accent)] bg-[var(--surface-2)] px-4 py-3">
-                  <div className="mb-1 text-xs font-semibold uppercase tracking-[0.18em] text-black/55">
-                    Why it exists
-                  </div>
-                  <p className="text-sm leading-6 text-black/70">
-                    {t.whyItExists}
-                  </p>
-                </div>
 
                 {t.params.length > 0 && (
                   <div className="mt-8">
