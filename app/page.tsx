@@ -178,6 +178,62 @@ export default function Page() {
         </section>
 
         <section className="border-t border-black/10 py-20">
+          <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+            <div>
+              <h2 className="text-xs uppercase tracking-[0.22em] text-black/60">
+                Early access
+              </h2>
+              <p className="mt-4 text-3xl font-semibold tracking-tight text-black sm:text-4xl">
+                Built in the open, rough edges included.
+              </p>
+            </div>
+            <div className="border border-black/10 bg-white p-6 sm:p-8">
+              <div className="inline-flex items-center gap-2 border border-black/10 px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-black/60">
+                <span className="size-1.5 rounded-full bg-[var(--accent)] dot-pulse" />
+                v0 · early
+              </div>
+              <p className="mt-5 text-base leading-7 text-black/70">
+                Casper is in its early days. Expect discrepancies, missing
+                provider coverage, and rough edges as the graph, drift, and
+                policy layers mature. Feedback shapes what ships next.
+              </p>
+              <p className="mt-4 text-base leading-7 text-black/70">
+                If you want Casper as part of your real workflow, reach out and
+                we&apos;ll build it together — issues you hit, providers you
+                need, and conventions your team actually uses.
+              </p>
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <a
+                  href="https://x.com/LowKeyDevs"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-md border border-black bg-white px-4 text-sm font-medium text-black transition hover:bg-[var(--surface-2)]"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-4"
+                    aria-hidden="true"
+                  >
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z" />
+                  </svg>
+                  Reach out on X
+                </a>
+                <a
+                  href="https://github.com/ASHUTOSH-SWAIN-GIT/casper-mcp/issues"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center rounded-md border border-black/15 bg-white px-4 text-sm font-medium text-black transition hover:border-black hover:bg-[var(--surface-2)]"
+                >
+                  Open a GitHub issue
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-t border-black/10 py-20">
           <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <h2 className="max-w-3xl text-4xl font-semibold tracking-tight text-black sm:text-6xl">
