@@ -558,19 +558,6 @@ export AWS_SESSION_TOKEN=...`}</code>
               </pre>
             </div>
 
-            <p className="mt-4 max-w-3xl leading-7 text-black/70">
-              Or, cleaner &mdash; point at a named profile from{" "}
-              <code className="font-mono text-black">~/.aws/credentials</code>:
-            </p>
-            <div className="mt-3 overflow-hidden border border-black/10 bg-white">
-              <div className="border-b border-black/10 px-4 py-2 font-mono text-xs text-black/55">
-                shell &mdash; named profile
-              </div>
-              <pre className="overflow-x-auto p-4 font-mono text-xs leading-relaxed text-black">
-                <code>{`export AWS_PROFILE=casper-readonly`}</code>
-              </pre>
-            </div>
-
             <h4 className="mt-8 text-sm font-semibold text-black">
               CLI vs GUI MCP clients
             </h4>
@@ -598,7 +585,8 @@ export AWS_SESSION_TOKEN=...`}</code>
       "command": "casper-mcp",
       "args": ["serve", "--dir", "."],
       "env": {
-        "AWS_PROFILE": "casper-readonly"
+        "AWS_ACCESS_KEY_ID": "AKIA...",
+        "AWS_SECRET_ACCESS_KEY": "..."
       }
     }
   }
