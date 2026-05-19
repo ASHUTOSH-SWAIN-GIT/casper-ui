@@ -1,188 +1,166 @@
 export function HeroVisual() {
   return (
-    <div className="relative aspect-[5/4] w-full overflow-hidden border border-black/10 bg-white">
-      <div className="absolute inset-0 grid-bg opacity-80" />
+    <div className="relative w-full">
+      <div className="pointer-events-none absolute -inset-6 -z-10 opacity-60 [background:radial-gradient(60%_50%_at_70%_30%,var(--accent-glow),transparent_70%)]" />
 
-      <svg
-        viewBox="0 0 500 400"
-        className="relative w-full h-full"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#0f766e" stopOpacity="0.22" />
-            <stop offset="70%" stopColor="#0f766e" stopOpacity="0.04" />
-            <stop offset="100%" stopColor="#0f766e" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0a0a0a" stopOpacity="0.05" />
-            <stop offset="50%" stopColor="#0f766e" stopOpacity="0.58" />
-            <stop offset="100%" stopColor="#0a0a0a" stopOpacity="0.05" />
-          </linearGradient>
-        </defs>
-
-        <circle cx="250" cy="200" r="120" fill="url(#hubGlow)" />
-
-        <g
-          stroke="#0f766e"
-          strokeWidth="1.25"
-          fill="none"
-          className="dash-flow"
-          opacity="0.75"
-        >
-          <path d="M 90 90 Q 170 140 235 195" />
-          <path d="M 90 200 Q 160 200 235 200" />
-          <path d="M 90 310 Q 170 260 235 205" />
-        </g>
-
-        <g
-          stroke="#0f766e"
-          strokeWidth="1.25"
-          fill="none"
-          className="dash-flow"
-          opacity="0.75"
-          style={{ animationDirection: "reverse" } as React.CSSProperties}
-        >
-          <path d="M 265 195 Q 340 140 410 100" />
-          <path d="M 265 200 Q 340 200 410 200" />
-          <path d="M 265 205 Q 340 260 410 300" />
-        </g>
-
-        <g stroke="url(#lineGrad)" strokeWidth="1" fill="none" opacity="0.5">
-          <path d="M 90 90 Q 170 140 235 195" />
-          <path d="M 90 200 Q 160 200 235 200" />
-          <path d="M 90 310 Q 170 260 235 205" />
-          <path d="M 265 195 Q 340 140 410 100" />
-          <path d="M 265 200 Q 340 200 410 200" />
-          <path d="M 265 205 Q 340 260 410 300" />
-        </g>
-
-        <g>
-          <AgentNode x={70} y={90} label="claude" />
-          <AgentNode x={70} y={200} label="cursor" />
-          <AgentNode x={70} y={310} label="codex" />
-        </g>
-
-        <g>
-          <circle
-            cx="250"
-            cy="200"
-            r="38"
-            fill="white"
-            stroke="#0a0a0a"
-            strokeWidth="1.5"
+      <div className="relative grid gap-3">
+        <Card className="ml-auto w-[92%] sm:w-[88%]">
+          <CardHeader
+            kicker="graph · live"
+            title="Infrastructure index"
+            accent
           />
-          <circle
-            cx="250"
-            cy="200"
-            r="38"
-            fill="none"
-            stroke="#0f766e"
-            strokeWidth="1.5"
-            opacity="0.5"
-          >
-            <animate
-              attributeName="r"
-              values="38;58;38"
-              dur="2.8s"
-              repeatCount="indefinite"
+          <div className="grid grid-cols-3 gap-px bg-black/10">
+            {[
+              ["247", "resources"],
+              ["18", "modules"],
+              ["4", "providers"],
+            ].map(([v, l]) => (
+              <div key={l} className="bg-white p-3 sm:p-4">
+                <div className="font-mono text-2xl text-black sm:text-3xl">
+                  {v}
+                </div>
+                <div className="mt-1 text-[10.5px] uppercase tracking-[0.18em] text-black/55">
+                  {l}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-black/10 p-3 sm:p-4">
+            <div className="flex items-center justify-between font-mono text-[11px] text-black/55">
+              <span>aws · github · datadog · cloudflare</span>
+              <span className="flex items-center gap-1.5 text-black/70">
+                <span className="size-1.5 rounded-full bg-[var(--accent)] dot-pulse" />
+                indexed 2m ago
+              </span>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="mr-auto w-[92%] sm:w-[88%]">
+          <CardHeader
+            kicker="simulate_impact"
+            title="Pull request #482"
+          />
+          <div className="space-y-2 p-3 sm:p-4">
+            <Row
+              label="blast radius"
+              value="3 resources"
+              accent
             />
-            <animate
-              attributeName="opacity"
-              values="0.5;0;0.5"
-              dur="2.8s"
-              repeatCount="indefinite"
-            />
-          </circle>
-          <circle cx="250" cy="200" r="6" fill="#0f766e" className="dot-pulse" />
-          <text
-            x="250"
-            y="258"
-            textAnchor="middle"
-            className="font-mono"
-            fontSize="11"
-            fill="#0a0a0a"
-            fontWeight="500"
-          >
-            casper · mcp
-          </text>
-        </g>
+            <Row label="broken refs" value="none" muted />
+            <Row label="reversible" value="yes" muted />
+            <div className="border-t border-black/10 pt-2">
+              <Row
+                label="policy"
+                value="s3-encryption-required"
+                warn
+              />
+            </div>
+          </div>
+        </Card>
 
-        <g>
-          <InfraNode x={410} y={100} label=".tf" />
-          <InfraNode x={430} y={200} label="aws" />
-          <InfraNode x={410} y={300} label="state" />
-
-          <g stroke="#0a0a0a" strokeWidth="0.75" opacity="0.25" fill="none">
-            <line x1="410" y1="100" x2="430" y2="200" />
-            <line x1="430" y1="200" x2="410" y2="300" />
-            <line x1="410" y1="100" x2="410" y2="300" />
-          </g>
-        </g>
-      </svg>
-
-      <div className="absolute bottom-0 inset-x-0 flex items-center justify-between border-t border-black/10 bg-white/90 px-4 py-2 font-mono text-[11px] text-black/55 backdrop-blur">
-        <span>agents</span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-1.5 rounded-full bg-[var(--accent)] dot-pulse" />
-          live
-        </span>
-        <span>infrastructure</span>
+        <Card className="ml-auto w-[92%] sm:w-[88%]">
+          <CardHeader
+            kicker="describe_live_state"
+            title="Drift detected"
+          />
+          <div className="p-3 sm:p-4">
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 font-mono text-[11.5px]">
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-black/45">
+                  terraform
+                </div>
+                <div className="mt-1 truncate text-black/70">
+                  t3.medium
+                </div>
+              </div>
+              <div className="text-black/30">→</div>
+              <div>
+                <div className="text-[10px] uppercase tracking-[0.18em] text-black/45">
+                  aws (live)
+                </div>
+                <div className="mt-1 truncate text-black">t3.large</div>
+              </div>
+            </div>
+            <div className="mt-3 truncate font-mono text-[11px] text-black/55">
+              aws_instance.api · us-east-1
+            </div>
+          </div>
+        </Card>
       </div>
     </div>
   );
 }
 
-function AgentNode({ x, y, label }: { x: number; y: number; label: string }) {
+function Card({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <g>
-      <rect
-        x={x - 28}
-        y={y - 14}
-        width="56"
-        height="28"
-        rx="6"
-        fill="white"
-        stroke="#d8d8d8"
-        strokeWidth="1"
-      />
-      <circle cx={x - 16} cy={y} r="3" fill="#0f766e" className="dot-pulse" />
-      <text
-        x={x + 2}
-        y={y + 3.5}
-        textAnchor="middle"
-        className="font-mono"
-        fontSize="10"
-        fill="#0a0a0a"
-      >
-        {label}
-      </text>
-    </g>
+    <div
+      className={`relative border border-black/10 bg-white shadow-[0_1px_0_rgba(0,0,0,0.02),0_18px_36px_-24px_rgba(0,0,0,0.18)] ${className}`}
+    >
+      {children}
+    </div>
   );
 }
 
-function InfraNode({ x, y, label }: { x: number; y: number; label: string }) {
+function CardHeader({
+  kicker,
+  title,
+  accent = false,
+}: {
+  kicker: string;
+  title: string;
+  accent?: boolean;
+}) {
   return (
-    <g>
-      <circle
-        cx={x}
-        cy={y}
-        r="18"
-        fill="white"
-        stroke="#0a0a0a"
-        strokeOpacity="0.24"
-        strokeWidth="1"
-      />
-      <text
-        x={x}
-        y={y + 3.5}
-        textAnchor="middle"
-        className="font-mono"
-        fontSize="10"
-        fill="#0a0a0a"
-      >
+    <div className="flex items-center justify-between border-b border-black/10 px-3 py-2.5 sm:px-4">
+      <div className="flex items-center gap-2">
+        <span
+          className={`size-1.5 rounded-full ${
+            accent ? "bg-[var(--accent)] dot-pulse" : "bg-black/30"
+          }`}
+        />
+        <span className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-black/55">
+          {kicker}
+        </span>
+      </div>
+      <span className="text-[12px] font-medium text-black">{title}</span>
+    </div>
+  );
+}
+
+function Row({
+  label,
+  value,
+  accent = false,
+  muted = false,
+  warn = false,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+  muted?: boolean;
+  warn?: boolean;
+}) {
+  const valueClass = warn
+    ? "text-amber-700"
+    : accent
+    ? "text-[var(--accent)]"
+    : muted
+    ? "text-black/70"
+    : "text-black";
+  return (
+    <div className="flex items-center justify-between font-mono text-[12px]">
+      <span className="text-[11px] uppercase tracking-[0.16em] text-black/55">
         {label}
-      </text>
-    </g>
+      </span>
+      <span className={valueClass}>{value}</span>
+    </div>
   );
 }
