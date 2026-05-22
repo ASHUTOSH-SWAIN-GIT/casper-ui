@@ -59,31 +59,31 @@ const workflows = {
 const features = [
   {
     Icon: SearchIcon,
-    Visual: () => <IsoSearchPanel className="h-28 w-auto" />,
+    Visual: () => <IsoSearchPanel className="h-32 w-auto" />,
     title: "Find resources",
     body: "Search by name, type, tag, or attribute across .tf and .tfstate.",
   },
   {
     Icon: BoltIcon,
-    Visual: () => <IsoSimulatePanel className="h-28 w-auto" />,
+    Visual: () => <IsoSimulatePanel className="h-32 w-auto" />,
     title: "Simulate changes",
     body: "Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply.",
   },
   {
     Icon: CloudIcon,
-    Visual: () => <IsoDriftPanel className="h-28 w-auto" />,
+    Visual: () => <IsoDriftPanel className="h-32 w-auto" />,
     title: "Detect drift",
     body: "Compare Terraform state vs live AWS via read-only Describe APIs.",
   },
   {
     Icon: ShieldIcon,
-    Visual: () => <IsoPolicyPanel className="h-28 w-auto" />,
+    Visual: () => <IsoPolicyPanel className="h-32 w-auto" />,
     title: "Enforce policies",
     body: "Define org rules in .casper/policies.yaml. Violations surface inline.",
   },
   {
     Icon: GraphIcon,
-    Visual: () => <IsoReadonlyPanel className="h-28 w-auto" />,
+    Visual: () => <IsoReadonlyPanel className="h-32 w-auto" />,
     title: "Read-only by design",
     body: "Casper never writes Terraform or AWS resources. render_graph writes one local HTML file; that's the only thing on disk.",
   },
@@ -186,8 +186,8 @@ export default function Page() {
             </div>
             <div className="divide-y divide-black/10 border-y border-black/10">
               {features.map((f) => (
-                <div key={f.title} className="grid items-center gap-5 py-6 sm:grid-cols-[140px_180px_1fr] sm:py-7">
-                  <div className="flex h-28 items-end justify-center sm:justify-start">
+                <div key={f.title} className="grid items-center gap-5 py-6 sm:grid-cols-[180px_180px_1fr] sm:py-7">
+                  <div className="flex h-32 items-center justify-center sm:justify-start">
                     <f.Visual />
                   </div>
                   <div className="flex items-center gap-3">

@@ -896,8 +896,8 @@ function Frame({
   s,
   P,
   className = "",
-  extraTop = 16,
-  extraRight = 16,
+  extraTop = 8,
+  extraRight = 8,
   children,
 }: {
   s: number;
@@ -913,14 +913,14 @@ function Frame({
     project([P.x + P.w, P.y + P.d, P.z], s),
     project([P.x, P.y + P.d, P.z], s),
     project([P.x, P.y, P.z + 1], s),
-    project([P.x + P.w, P.y + P.d, P.z + 6], s), // generous top
+    project([P.x + P.w, P.y + P.d, P.z + 3.5], s), // generous top
   ];
   const xs = corners.map((p) => p[0]);
   const ys = corners.map((p) => p[1]);
-  const minX = Math.min(...xs) - 12;
+  const minX = Math.min(...xs) - 6;
   const maxX = Math.max(...xs) + extraRight;
   const minY = Math.min(...ys) - extraTop;
-  const maxY = Math.max(...ys) + 12;
+  const maxY = Math.max(...ys) + 6;
 
   return (
     <svg

@@ -1,0 +1,233 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - link "casper mcp" [ref=e5] [cursor=pointer]:
+      - /url: /
+      - text: casper mcp
+    - navigation [ref=e9]:
+      - link "Home" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "Docs" [ref=e11] [cursor=pointer]:
+        - /url: /docs
+      - link "GitHub" [ref=e12] [cursor=pointer]:
+        - /url: https://github.com/ASHUTOSH-SWAIN-GIT/casper-mcp
+      - button "Switch to dark mode" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+  - generic [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]: MCP server for Terraform and AWS
+      - heading "Casper MCP Server" [level=1] [ref=e20]
+      - paragraph [ref=e21]: A live, queryable view of your Terraform infrastructure for AI agents. Casper turns repos, state, drift, and policies into structured context your assistant can actually use.
+      - generic [ref=e22]:
+        - button "$ npm install -g casper-mcp copy" [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]: $ npm install -g casper-mcp
+          - generic [ref=e25]: copy
+        - link "Read docs" [ref=e26] [cursor=pointer]:
+          - /url: /docs
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]: MCP
+          - generic [ref=e30]: typed tools
+        - generic [ref=e31]:
+          - generic [ref=e32]: "0"
+          - generic [ref=e33]: write actions
+        - generic [ref=e34]:
+          - generic [ref=e35]: "1"
+          - generic [ref=e36]: live graph
+    - generic [ref=e39]:
+      - img [ref=e40]:
+        - generic [ref=e61]:
+          - generic [ref=e78]: S3
+          - generic [ref=e83]: EC2
+          - generic [ref=e88]: λ
+          - generic [ref=e93]: RDS
+          - generic [ref=e98]: IAM
+          - generic [ref=e103]: VPC
+          - generic [ref=e108]: SG
+          - generic [ref=e113]: ALB
+        - generic [ref=e114]: AWS · LIVE
+        - generic [ref=e157]: TERRAFORM · STATE
+        - generic [ref=e175]: MCP · AGENT
+      - generic [ref=e176]:
+        - generic [ref=e179]: graph · live
+        - generic [ref=e180]:
+          - generic [ref=e181]:
+            - generic [ref=e182]: "247"
+            - generic [ref=e183]: resources
+          - generic [ref=e184]: indexed 2m ago
+      - generic [ref=e186]:
+        - generic [ref=e189]: describe_live_state
+        - generic [ref=e191]:
+          - generic [ref=e192]:
+            - generic [ref=e193]: terraform
+            - generic [ref=e194]: t3.medium
+          - generic [ref=e195]: →
+          - generic [ref=e196]:
+            - generic [ref=e197]: aws · live
+            - generic [ref=e198]: t3.large
+      - generic [ref=e199]:
+        - generic [ref=e202]: simulate_impact
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - generic [ref=e205]: blast
+            - generic [ref=e206]: "3"
+          - generic [ref=e207]:
+            - generic [ref=e208]: refs
+            - generic [ref=e209]: ok
+          - generic [ref=e210]:
+            - generic [ref=e211]: policy
+            - generic [ref=e212]: warn
+  - generic [ref=e214]:
+    - generic [ref=e215]:
+      - heading "What it does" [level=2] [ref=e216]
+      - paragraph [ref=e217]: Infra context without giving agents write access.
+    - generic [ref=e218]:
+      - generic [ref=e219]:
+        - img [ref=e221]
+        - heading "Agent-ready context" [level=3] [ref=e240]
+        - list [ref=e241]:
+          - listitem [ref=e242]: Terraform-aware assistant workflows
+          - listitem [ref=e244]: Structured JSON responses
+          - listitem [ref=e246]: Session-level repo loading
+          - listitem [ref=e248]: Read-only cloud inspection
+      - generic [ref=e250]:
+        - img [ref=e252]
+        - heading "Infrastructure graph" [level=3] [ref=e286]
+        - list [ref=e287]:
+          - listitem [ref=e288]: Resources, modules, tags, and refs
+          - listitem [ref=e290]: HCL impact simulation
+          - listitem [ref=e292]: AWS state comparison
+          - listitem [ref=e294]: Policy violations surfaced inline
+      - generic [ref=e296]:
+        - img [ref=e298]:
+          - generic [ref=e299]:
+            - generic [ref=e312]: S3
+            - generic [ref=e317]: λ
+            - generic [ref=e322]: EC2
+            - generic [ref=e327]: SG
+            - generic [ref=e332]: VPC
+            - generic [ref=e337]: RDS
+            - generic [ref=e342]: IAM
+            - generic [ref=e347]: ALB
+            - generic [ref=e352]: KMS
+        - heading "Team workflows" [level=3] [ref=e353]
+        - list [ref=e354]:
+          - listitem [ref=e355]: Review pull requests before apply
+          - listitem [ref=e357]: Find drift in production resources
+          - listitem [ref=e359]: Recommend existing modules
+          - listitem [ref=e361]: Block risky changes in CI
+  - generic [ref=e364]:
+    - generic [ref=e365]:
+      - heading "Core features" [level=2] [ref=e366]
+      - paragraph [ref=e367]: The tools an AI reviewer needs before it can reason about infra.
+    - generic [ref=e368]:
+      - generic [ref=e369]:
+        - img [ref=e371]:
+          - generic [ref=e377]:
+            - generic [ref=e385]: S3
+            - generic [ref=e390]: EC2
+            - generic [ref=e395]: λ
+            - generic [ref=e400]: SG
+            - generic [ref=e405]: VPC
+            - generic [ref=e410]: RDS
+            - generic [ref=e415]: IAM
+            - generic [ref=e420]: ALB
+            - generic [ref=e425]: KMS
+        - generic [ref=e429]:
+          - img [ref=e430]
+          - heading "Find resources" [level=3] [ref=e434]
+        - paragraph [ref=e435]: Search by name, type, tag, or attribute across .tf and .tfstate.
+      - generic [ref=e436]:
+        - img [ref=e438]:
+          - generic [ref=e439]:
+            - generic [ref=e452]: A
+            - generic [ref=e457]: B
+            - generic [ref=e462]: C
+            - generic [ref=e467]: D
+            - generic [ref=e472]: E
+            - generic [ref=e477]: F
+          - generic [ref=e478]:
+            - generic [ref=e491]: A
+            - generic [ref=e496]: B+
+            - generic [ref=e501]: C
+            - generic [ref=e506]: D
+            - generic [ref=e511]: E*
+            - generic [ref=e516]: F
+        - generic [ref=e520]:
+          - img [ref=e521]
+          - heading "Simulate changes" [level=3] [ref=e523]
+        - paragraph [ref=e524]: Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply.
+      - generic [ref=e525]:
+        - img [ref=e527]:
+          - generic [ref=e540]: TF
+          - generic [ref=e557]: AWS
+        - generic [ref=e561]:
+          - img [ref=e562]
+          - heading "Detect drift" [level=3] [ref=e565]
+        - paragraph [ref=e566]: Compare Terraform state vs live AWS via read-only Describe APIs.
+      - generic [ref=e567]:
+        - img [ref=e569]:
+          - generic [ref=e570]:
+            - generic [ref=e583]: EC2
+            - generic [ref=e588]: S3
+            - generic [ref=e593]: RDS
+            - generic [ref=e598]: IAM
+        - generic [ref=e602]:
+          - img [ref=e603]
+          - heading "Enforce policies" [level=3] [ref=e606]
+        - paragraph [ref=e607]: Define org rules in .casper/policies.yaml. Violations surface inline.
+      - generic [ref=e608]:
+        - img [ref=e610]
+        - generic [ref=e638]:
+          - img [ref=e639]
+          - heading "Read-only by design" [level=3] [ref=e644]
+        - paragraph [ref=e645]: Casper never writes Terraform or AWS resources. render_graph writes one local HTML file; that's the only thing on disk.
+  - generic [ref=e647]:
+    - generic [ref=e648]:
+      - heading "FAQ" [level=2] [ref=e649]
+      - paragraph [ref=e650]: Common questions
+    - generic [ref=e651]:
+      - generic [ref=e652]:
+        - button "What is MCP? +" [ref=e653] [cursor=pointer]:
+          - generic [ref=e654]: What is MCP?
+          - generic [ref=e655]: +
+        - generic [ref=e656]: Model Context Protocol is an open standard for connecting AI assistants to external systems. Instead of feeding your agent raw files, an MCP server exposes typed tools. Casper exposes a focused set of them for querying Terraform infrastructure — see the docs for the full list.
+      - button "Does Casper modify my Terraform or AWS? +" [ref=e658] [cursor=pointer]:
+        - generic [ref=e659]: Does Casper modify my Terraform or AWS?
+        - generic [ref=e660]: +
+      - button "How does drift detection work? +" [ref=e662] [cursor=pointer]:
+        - generic [ref=e663]: How does drift detection work?
+        - generic [ref=e664]: +
+      - button "What clouds does it support? +" [ref=e666] [cursor=pointer]:
+        - generic [ref=e667]: What clouds does it support?
+        - generic [ref=e668]: +
+  - generic [ref=e670]:
+    - generic [ref=e671]:
+      - heading "Early access" [level=2] [ref=e672]
+      - paragraph [ref=e673]: Built in the open, rough edges included.
+    - generic [ref=e674]:
+      - generic [ref=e675]: v0 · early
+      - paragraph [ref=e677]: Casper is in its early days. Expect discrepancies, missing provider coverage, and rough edges as the graph, drift, and policy layers mature. Feedback shapes what ships next.
+      - paragraph [ref=e678]: If you want Casper as part of your real workflow, reach out and we'll build it together — issues you hit, providers you need, and conventions your team actually uses.
+      - generic [ref=e679]:
+        - link "Reach out on X" [ref=e680] [cursor=pointer]:
+          - /url: https://x.com/LowKeyDevs
+          - img [ref=e681]
+          - text: Reach out on X
+        - link "Open a GitHub issue" [ref=e683] [cursor=pointer]:
+          - /url: https://github.com/ASHUTOSH-SWAIN-GIT/casper-mcp/issues
+  - generic [ref=e684]:
+    - generic:
+      - img
+    - generic [ref=e685]:
+      - generic [ref=e686]:
+        - heading "Put your infra graph in the agent loop." [level=2] [ref=e687]
+        - paragraph [ref=e688]: Start with a read-only MCP server that works with Claude Code, Claude Desktop, Cursor, and any client that can call MCP tools.
+      - generic [ref=e689]:
+        - link "Read the docs" [ref=e690] [cursor=pointer]:
+          - /url: /docs
+        - link "View GitHub" [ref=e691] [cursor=pointer]:
+          - /url: https://github.com/ASHUTOSH-SWAIN-GIT/casper-mcp
+  - contentinfo [ref=e692]:
+    - generic [ref=e693]: MIT licensed
+    - link "github.com/ASHUTOSH-SWAIN-GIT/casper-mcp" [ref=e694] [cursor=pointer]:
+      - /url: https://github.com/ASHUTOSH-SWAIN-GIT/casper-mcp
