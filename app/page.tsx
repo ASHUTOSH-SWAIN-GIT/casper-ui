@@ -11,11 +11,21 @@ import {
   BoltIcon,
   LayersIcon,
 } from "@/components/icons";
+import {
+  IsoFlowTile,
+  IsoBoardTile,
+  IsoGraphTile,
+  IsoSearchPanel,
+  IsoSimulatePanel,
+  IsoDriftPanel,
+  IsoPolicyPanel,
+  IsoReadonlyPanel,
+} from "@/components/isometric";
 import { CopyCommand } from "./copy-command";
 
 const benefits = {
   title: "Agent-ready context",
-  icon: BoltIcon,
+  Visual: () => <IsoFlowTile className="h-32 w-auto" />,
   items: [
     "Terraform-aware assistant workflows",
     "Structured JSON responses",
@@ -26,7 +36,7 @@ const benefits = {
 
 const capabilities = {
   title: "Infrastructure graph",
-  icon: LayersIcon,
+  Visual: () => <IsoGraphTile className="h-32 w-auto" />,
   items: [
     "Resources, modules, tags, and refs",
     "HCL impact simulation",
@@ -37,7 +47,7 @@ const capabilities = {
 
 const workflows = {
   title: "Team workflows",
-  icon: GraphIcon,
+  Visual: () => <IsoBoardTile className="h-32 w-auto" />,
   items: [
     "Review pull requests before apply",
     "Find drift in production resources",
@@ -47,11 +57,36 @@ const workflows = {
 };
 
 const features = [
-  { Icon: SearchIcon, title: "Find resources", body: "Search by name, type, tag, or attribute across .tf and .tfstate." },
-  { Icon: BoltIcon, title: "Simulate changes", body: "Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply." },
-  { Icon: CloudIcon, title: "Detect drift", body: "Compare Terraform state vs live AWS via read-only Describe APIs." },
-  { Icon: ShieldIcon, title: "Enforce policies", body: "Define org rules in .casper/policies.yaml. Violations surface inline." },
-  { Icon: GraphIcon, title: "Read-only by design", body: "Casper never writes Terraform or AWS resources. render_graph writes one local HTML file; that's the only thing on disk." },
+  {
+    Icon: SearchIcon,
+    Visual: () => <IsoSearchPanel className="h-28 w-auto" />,
+    title: "Find resources",
+    body: "Search by name, type, tag, or attribute across .tf and .tfstate.",
+  },
+  {
+    Icon: BoltIcon,
+    Visual: () => <IsoSimulatePanel className="h-28 w-auto" />,
+    title: "Simulate changes",
+    body: "Parse proposed HCL, then get blast radius, broken refs, and policy hits before apply.",
+  },
+  {
+    Icon: CloudIcon,
+    Visual: () => <IsoDriftPanel className="h-28 w-auto" />,
+    title: "Detect drift",
+    body: "Compare Terraform state vs live AWS via read-only Describe APIs.",
+  },
+  {
+    Icon: ShieldIcon,
+    Visual: () => <IsoPolicyPanel className="h-28 w-auto" />,
+    title: "Enforce policies",
+    body: "Define org rules in .casper/policies.yaml. Violations surface inline.",
+  },
+  {
+    Icon: GraphIcon,
+    Visual: () => <IsoReadonlyPanel className="h-28 w-auto" />,
+    title: "Read-only by design",
+    body: "Casper never writes Terraform or AWS resources. render_graph writes one local HTML file; that's the only thing on disk.",
+  },
 ];
 
 export default function Page() {
@@ -118,11 +153,11 @@ export default function Page() {
             </div>
             <div className="grid gap-px border border-black/10 bg-black/10 md:grid-cols-3">
               {[benefits, capabilities, workflows].map((card) => (
-                <div key={card.title} className="group bg-white p-6 transition hover:bg-[var(--surface-2)]">
-                  <div className="flex size-10 items-center justify-center border border-black/15 text-black">
-                    <card.icon className="size-5" />
+                <div key={card.title} className="group relative overflow-hidden bg-white p-6 transition hover:bg-[var(--surface-2)]">
+                  <div className="flex h-24 items-end justify-center">
+                    <card.Visual />
                   </div>
-                  <h3 className="mt-5 text-base font-semibold text-black">
+                  <h3 className="mt-6 text-base font-semibold text-black">
                     {card.title}
                   </h3>
                   <ul className="mt-5 space-y-3">
@@ -151,9 +186,12 @@ export default function Page() {
             </div>
             <div className="divide-y divide-black/10 border-y border-black/10">
               {features.map((f) => (
-                <div key={f.title} className="grid gap-4 py-5 sm:grid-cols-[160px_1fr] sm:py-6">
+                <div key={f.title} className="grid items-center gap-5 py-6 sm:grid-cols-[140px_180px_1fr] sm:py-7">
+                  <div className="flex h-28 items-end justify-center sm:justify-start">
+                    <f.Visual />
+                  </div>
                   <div className="flex items-center gap-3">
-                    <f.Icon className="size-5 text-black" />
+                    <f.Icon className="size-4 text-black/60" />
                     <h3 className="text-sm font-semibold text-black">{f.title}</h3>
                   </div>
                   <p className="text-sm leading-6 text-black/70">{f.body}</p>
@@ -233,7 +271,10 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="border-t border-black/10 py-20">
+        <section className="relative border-t border-black/10 py-20">
+          <div className="pointer-events-none absolute right-0 top-10 hidden h-48 w-72 opacity-90 lg:block">
+            <IsoGraphTile className="h-full w-full" />
+          </div>
           <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <h2 className="max-w-3xl text-4xl font-semibold tracking-tight text-black sm:text-6xl">

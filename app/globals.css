@@ -15,6 +15,19 @@
   --fg-rgb: 10, 10, 10;
   --surface-rgb: 255, 255, 255;
   --grid-line: rgba(10, 10, 10, 0.055);
+
+  /* Isometric (wireframe / blueprint) palette */
+  --iso-fill: rgba(10, 10, 10, 0.012);
+  --iso-fill-strong: rgba(10, 10, 10, 0.05);
+  --iso-stroke: rgba(10, 10, 10, 0.18);
+  --iso-stroke-bright: rgba(10, 10, 10, 0.5);
+  --iso-text: rgba(10, 10, 10, 0.85);
+  --iso-text-muted: rgba(10, 10, 10, 0.55);
+  --iso-chip-fill: rgba(10, 10, 10, 0.04);
+  --iso-chip-side: rgba(10, 10, 10, 0.08);
+  --iso-node-fill: #ffffff;
+  --iso-accent-fill: rgba(15, 118, 110, 0.12);
+  --iso-accent-text: #0f4f48;
 }
 
 html.dark {
@@ -30,6 +43,19 @@ html.dark {
   --fg-rgb: 245, 245, 245;
   --surface-rgb: 10, 10, 10;
   --grid-line: rgba(255, 255, 255, 0.06);
+
+  /* Isometric — dark */
+  --iso-fill: rgba(255, 255, 255, 0.02);
+  --iso-fill-strong: rgba(255, 255, 255, 0.05);
+  --iso-stroke: rgba(255, 255, 255, 0.18);
+  --iso-stroke-bright: rgba(255, 255, 255, 0.55);
+  --iso-text: rgba(245, 245, 245, 0.9);
+  --iso-text-muted: rgba(245, 245, 245, 0.55);
+  --iso-chip-fill: rgba(255, 255, 255, 0.04);
+  --iso-chip-side: rgba(255, 255, 255, 0.06);
+  --iso-node-fill: #0a0a0a;
+  --iso-accent-fill: rgba(20, 184, 166, 0.16);
+  --iso-accent-text: #5eead4;
 }
 
 /* Remap hardcoded Tailwind color utilities to themed variables in dark mode. */

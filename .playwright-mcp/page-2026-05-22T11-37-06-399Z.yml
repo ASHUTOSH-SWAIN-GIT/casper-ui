@@ -1,0 +1,151 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e6]: Placeholder text for banner height reservation on mobile
+  - banner [ref=e8]:
+    - generic [ref=e11]:
+      - link [ref=e13] [cursor=pointer]:
+        - /url: /
+        - img [ref=e14]
+      - generic [ref=e28]:
+        - navigation "Main" [ref=e30]:
+          - list [ref=e32]:
+            - listitem [ref=e33]:
+              - link "Products Chevron Icon" [ref=e34] [cursor=pointer]:
+                - /url: /products/agent-platform
+                - text: Products
+                - img "Chevron Icon" [ref=e35]
+            - listitem [ref=e37]:
+              - link "Resources Chevron Icon" [ref=e38] [cursor=pointer]:
+                - /url: /blog
+                - text: Resources
+                - img "Chevron Icon" [ref=e39]
+            - listitem [ref=e41]:
+              - link "Company Chevron Icon" [ref=e42] [cursor=pointer]:
+                - /url: /about
+                - text: Company
+                - img "Chevron Icon" [ref=e43]
+            - listitem [ref=e45]:
+              - link "Pricing" [ref=e46] [cursor=pointer]:
+                - /url: /pricing
+                - generic [ref=e47]: Pricing
+        - generic [ref=e48]:
+          - generic [ref=e50]:
+            - link "GitHub livekit" [ref=e51] [cursor=pointer]:
+              - /url: https://github.com/livekit
+              - img "GitHub" [ref=e52]
+              - generic [ref=e54]: livekit
+            - generic [ref=e55]:
+              - generic [ref=e56]: /
+              - generic [ref=e57]:
+                - generic [ref=e58]: agents
+                - generic [ref=e59]: 10.6K
+              - generic:
+                - list:
+                  - listitem:
+                    - link "agents 10.6K":
+                      - /url: https://github.com/livekit/agents
+                      - generic:
+                        - generic: agents
+                        - generic: 10.6K
+                  - listitem:
+                    - link "livekit 18.8K":
+                      - /url: https://github.com/livekit/livekit
+                      - generic:
+                        - generic: livekit
+                        - generic: 18.8K
+          - link "Contact sales" [ref=e61] [cursor=pointer]:
+            - /url: /contact-sales
+          - link "Start building" [ref=e63] [cursor=pointer]:
+            - /url: https://cloud.livekit.io
+  - main [ref=e64]
+  - contentinfo [ref=e67]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - link "LiveKit homepage" [ref=e70] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e78]: The open source framework and cloud platform for voice, video, and physical AI agents.
+        - generic [ref=e79]:
+          - heading "Keep in touch" [level=2] [ref=e80]
+          - generic [ref=e81]:
+            - link "GitHub" [ref=e82] [cursor=pointer]:
+              - /url: https://github.com/livekit
+            - link "X" [ref=e85] [cursor=pointer]:
+              - /url: https://x.com/livekit
+            - link "Slack" [ref=e87] [cursor=pointer]:
+              - /url: https://livekit.com/join-slack
+            - link "YouTube" [ref=e89] [cursor=pointer]:
+              - /url: https://www.youtube.com/@livekit_io
+              - img "YouTube" [ref=e90]
+      - generic [ref=e92]:
+        - generic [ref=e93]:
+          - paragraph [ref=e94]: Products
+          - link "Agent platform" [ref=e95] [cursor=pointer]:
+            - /url: /products/agent-platform
+            - generic [ref=e96]: Agent platform
+          - link "Media server" [ref=e97] [cursor=pointer]:
+            - /url: https://github.com/livekit/livekit
+            - generic [ref=e98]: Media server
+          - link "SDKs" [ref=e99] [cursor=pointer]:
+            - /url: https://docs.livekit.io/reference/
+            - generic [ref=e100]: SDKs
+          - link "Cloud dashboard" [ref=e101] [cursor=pointer]:
+            - /url: https://cloud.livekit.io
+            - generic [ref=e102]: Cloud dashboard
+          - link "Terms of service" [ref=e103] [cursor=pointer]:
+            - /url: /legal/terms-of-service
+            - generic [ref=e104]: Terms of service
+        - generic [ref=e105]:
+          - paragraph [ref=e106]: Resources
+          - link "Documentation" [ref=e107] [cursor=pointer]:
+            - /url: https://docs.livekit.io/
+            - generic [ref=e108]: Documentation
+          - link "Community" [ref=e109] [cursor=pointer]:
+            - /url: https://community.livekit.io
+            - generic [ref=e110]: Community
+          - link "Coding agent support" [ref=e111] [cursor=pointer]:
+            - /url: https://docs.livekit.io/mcp
+            - generic [ref=e112]: Coding agent support
+          - link "Brand assets" [ref=e113] [cursor=pointer]:
+            - /url: /brand
+            - generic [ref=e114]: Brand assets
+          - link "Video codecs" [ref=e115] [cursor=pointer]:
+            - /url: /webrtc/codecs-guide
+            - generic [ref=e116]: Video codecs
+          - link "Codec bitrates" [ref=e117] [cursor=pointer]:
+            - /url: /webrtc/bitrate-guide
+            - generic [ref=e118]: Codec bitrates
+          - link "WebRTC browser test" [ref=e119] [cursor=pointer]:
+            - /url: /webrtc/browser-test
+            - generic [ref=e120]: WebRTC browser test
+          - link "Connection test" [ref=e121] [cursor=pointer]:
+            - /url: /webrtc/connection-test
+            - generic [ref=e122]: Connection test
+        - generic [ref=e123]:
+          - paragraph [ref=e124]: Company
+          - link "About" [ref=e125] [cursor=pointer]:
+            - /url: /about
+            - generic [ref=e126]: About
+          - link "Blog" [ref=e127] [cursor=pointer]:
+            - /url: /blog
+            - generic [ref=e128]: Blog
+          - link "Careers" [ref=e129] [cursor=pointer]:
+            - /url: /careers
+            - generic [ref=e130]: Careers
+          - link "Open source" [ref=e131] [cursor=pointer]:
+            - /url: https://github.com/livekit/livekit/blob/master/LICENSE
+            - generic [ref=e132]: Open source
+    - generic [ref=e134]:
+      - paragraph [ref=e135]: © 2026 LiveKit. Engineered and designed worldwide. All rights reserved.
+      - generic [ref=e136]:
+        - link "Terms of Service" [ref=e137] [cursor=pointer]:
+          - /url: /legal/terms-of-service
+        - text: "|"
+        - link "Cookie Policy" [ref=e138] [cursor=pointer]:
+          - /url: /legal/cookie-policy
+        - text: "|"
+        - link "Privacy Policy" [ref=e139] [cursor=pointer]:
+          - /url: /legal/privacy-policy
+        - text: "|"
+        - link "Security" [ref=e140] [cursor=pointer]:
+          - /url: /security
