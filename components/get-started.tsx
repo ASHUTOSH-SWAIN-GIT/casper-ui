@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Mode = "quick" | "manual";
 
@@ -76,11 +76,23 @@ export function GetStarted() {
   const [mode, setMode] = useState<Mode>("quick");
   const [activeClient, setActiveClient] = useState(manualConfigs[0].id);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const copy = async (key: string, text: string) => {
-    await navigator.clipboard.writeText(text);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      return;
+    }
     setCopiedKey(key);
-    setTimeout(() => setCopiedKey(null), 1200);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopiedKey(null), 1200);
   };
 
   const currentManual = manualConfigs.find((c) => c.id === activeClient)!;
@@ -96,6 +108,7 @@ export function GetStarted() {
         </div>
         <div className="flex w-fit border border-black/10 bg-white p-0.5 text-xs">
           <button
+            type="button"
             onClick={() => setMode("quick")}
             className={`px-3 py-1 transition ${
               mode === "quick"
@@ -106,6 +119,7 @@ export function GetStarted() {
             Quick
           </button>
           <button
+            type="button"
             onClick={() => setMode("manual")}
             className={`px-3 py-1 transition ${
               mode === "manual"
@@ -144,6 +158,7 @@ export function GetStarted() {
                             {step.label}
                           </h4>
                           <button
+                            type="button"
                             onClick={() => copy(key, step.code)}
                             className="font-mono text-[11px] text-black/45 transition hover:text-black"
                           >
@@ -188,6 +203,7 @@ export function GetStarted() {
                   {manualConfigs.map((c) => (
                     <button
                       key={c.id}
+                      type="button"
                       onClick={() => setActiveClient(c.id)}
                       className={`px-4 py-2.5 text-xs font-mono transition border-b-2 ${
                         activeClient === c.id
@@ -200,6 +216,7 @@ export function GetStarted() {
                   ))}
                 </div>
                 <button
+                  type="button"
                   onClick={() => copy(`manual-${activeClient}`, currentManual.code)}
                   className="mx-3 mb-3 px-2 py-1 text-left text-xs text-black/55 transition hover:text-black sm:mb-0"
                 >

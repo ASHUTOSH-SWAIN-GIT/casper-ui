@@ -109,6 +109,12 @@ html, body {
   background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--accent-glow), transparent 70%);
 }
 
+/* Theme toggle: show sun in dark mode, moon in light mode. No JS flash. */
+.theme-icon-sun { display: none; }
+.theme-icon-moon { display: block; }
+html.dark .theme-icon-sun { display: block; }
+html.dark .theme-icon-moon { display: none; }
+
 .dot-pulse {
   animation: pulse 2.4s ease-in-out infinite;
 }

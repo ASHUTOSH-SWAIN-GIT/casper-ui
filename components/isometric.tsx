@@ -1,3 +1,5 @@
+import type { ReactElement } from "react";
+
 const COS30 = Math.cos(Math.PI / 6);
 const SIN30 = Math.sin(Math.PI / 6);
 
@@ -36,7 +38,7 @@ function FloorGrid({
   s: number;
   opacity?: number;
 }) {
-  const lines: JSX.Element[] = [];
+  const lines: ReactElement[] = [];
   // y-constant lines (x varies)
   for (let i = 0; i <= rows; i++) {
     const a = project([x0, y0 + i, 0], s);
@@ -148,7 +150,7 @@ function SurfaceGrid({
   divisions?: number;
   opacity?: number;
 }) {
-  const lines: JSX.Element[] = [];
+  const lines: ReactElement[] = [];
   for (let i = 1; i < divisions; i++) {
     const t = (i / divisions) * w;
     const a = project([x + t, y, z], s);

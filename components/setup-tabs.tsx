@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const configs = [
   {
@@ -44,7 +44,25 @@ const configs = [
 export function SetupTabs() {
   const [active, setActive] = useState(configs[0].id);
   const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const current = configs.find((c) => c.id === active)!;
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(current.code);
+    } catch {
+      return;
+    }
+    setCopied(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 1200);
+  };
 
   return (
     <div className="rounded-xl border border-neutral-200 bg-neutral-950 overflow-hidden shadow-sm">
@@ -53,6 +71,7 @@ export function SetupTabs() {
           {configs.map((c) => (
             <button
               key={c.id}
+              type="button"
               onClick={() => setActive(c.id)}
               className={`px-4 py-3 text-xs font-mono transition border-b-2 ${
                 active === c.id
@@ -65,11 +84,8 @@ export function SetupTabs() {
           ))}
         </div>
         <button
-          onClick={async () => {
-            await navigator.clipboard.writeText(current.code);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1200);
-          }}
+          type="button"
+          onClick={handleCopy}
           className="mr-3 text-xs text-neutral-500 hover:text-white transition px-2 py-1"
         >
           {copied ? "copied" : "copy"}

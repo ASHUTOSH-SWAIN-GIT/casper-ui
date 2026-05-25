@@ -30,6 +30,8 @@ export function Faq() {
         return (
           <div key={item.q}>
             <button
+              type="button"
+              aria-expanded={isOpen}
               onClick={() => setOpen(isOpen ? null : i)}
               className="flex w-full items-center justify-between gap-4 px-0 py-5 text-left transition hover:bg-[var(--surface-2)] sm:px-4"
             >
